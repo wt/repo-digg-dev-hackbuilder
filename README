@@ -1,0 +1,48 @@
+Hack Builder
+Originally by: Warren Turkal
+
+The hack builder is a software build system. It is focused on building
+"statically" linked software. I quote "statically" as I am using it as a
+concept in that some of the software is not linked statically in the
+technical sense. For example, python "binaries" will be built into a
+virtualenv. As such, the packages being built have minimal software library
+dependencies when being built.
+
+Currently, the software only supports python software. The python software
+project can be built into a Debian package as well.
+
+
+Code Style:
+The code attempts to follow PEP8[1] style as closely as possible. Most of the
+documentation style can be found in the Google Python Style Guide[2].
+
+
+Hacking on the Code:
+To get the code, one must use repo[3]. Once you have repo in your path, make
+an empty directory, change to that directory, and type the following commands:
+$ repo init -u git://github.com/digg/repo-manifest.git
+$ repo sync
+
+To build the code the first time, I have created a boostrap build script. From
+the root of the repo hierarchy, type the following commands to execute it:
+$ cd digg/dev/hackbuilder/bootstrap_build
+$ ./build.sh clean && ./build.sh build
+
+Instead of "build", you can use "binary" as the target for the build.sh
+command to make a debian binary package. Once the software is built look type
+the following to execute the hack builder tool:
+$ cd ../ (changing into hackbuilder directory)
+$ ../../../bootstrap-build//digg/dev/hackbuilder/virtualenv/bin/hack
+
+The hack command has some minimal help to get you started. Also, have a look
+at the HACK_BUILD files to get a idea for how to construct new build files.
+
+
+Current Status:
+I currently consider this code to be of alpha quality. While no specific
+support is currently offered, bugs will be addressed on a best effort basis. I
+hope you find this software useful.
+
+[1]http://www.python.org/dev/peps/pep-0008/
+[2]http://google-styleguide.googlecode.com/svn/trunk/pyguide.html
+[3]http://source.android.com/source/downloading.html

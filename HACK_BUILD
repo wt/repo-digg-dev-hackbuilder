@@ -1,0 +1,24 @@
+debian_pkg('digg-hackbuilder',
+           deps=[':hack'])
+
+python_bin('hack',
+           entry_point='digg.dev.hackbuilder.cli.hack:main',
+           deps=[':hackbuilder_lib']
+           )
+
+python_test('test_target',
+           entry_point='digg.dev.hackbuilder.test_target:main',
+           deps=[':hackbuilder_lib']
+           )
+
+python_lib('hackbuilder_lib',
+           packages=[
+               'digg.dev.hackbuilder',
+               'digg.dev.hackbuilder.cli',
+               'digg.dev.hackbuilder.cli.commands',
+               'digg.dev.hackbuilder.plugins',
+               ],
+           deps=[
+               '/third_party/argparse:prod',
+               ],
+           )

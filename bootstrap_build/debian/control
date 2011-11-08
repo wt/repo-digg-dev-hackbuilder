@@ -1,0 +1,7 @@
+Package: digg-hackbuilder
+Version: 0.1
+Architecture: amd64
+Maintainer: Warren Turkal <wt@digg.com>
+Depends: libc6 (>= 2.7-1), python2.5 (>=2.5.2-15)
+Description: Digg Hack Builder
+ This is not make.

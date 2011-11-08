@@ -1,0 +1,10 @@
+General:
+* Add partial rebuilds
+* Write more tests
+
+Python:
+* Use virtualenv script from hack-source instead of the repository dir
+* Make python test target actually run the test
+
+Other languages:
+* Add C/C++ library targets
