@@ -91,7 +91,7 @@ class Normalizer(object):
                     'The target id path is not within a code repository.')
 
         # TODO(wt): for python 2.6+, the following line can be replaced with:
-        # return os.path.relpath(abs_path, self.repo_root_path)
+        # return '/' + os.path.relpath(abs_path, self.repo_root_path)
         return self._relpath(abs_path, self.repo_root_path)
 
     def _relpath(self, path, start_path):
@@ -111,7 +111,7 @@ class Normalizer(object):
         if sys.version_info < (2, 6):
             return path[len(start_path):]
 
-        return os.path.relpath(path, start_path)
+        return '/' + os.path.relpath(path, start_path)
 
     def normalize_target_id_in_build_file(self, target_id, build_file_path):
         """Normalize a target id found in a build file.

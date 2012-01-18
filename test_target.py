@@ -86,17 +86,19 @@ class TargetTests(unittest.TestCase):
         self.assertRaises(digg.dev.hackbuilder.errors.TargetIDValueError,
                 digg.dev.hackbuilder.target.TargetID, 'testdir/', 'testname')
 
-    #def test_other(self):
-    #    target_id = digg.dev.hackbuilder.target.TargetID.from_string('../lev2')
-    #    target = digg.dev.hackbuilder.target.Target(target_id)
 
-    #    normalizer = digg.dev.hackbuilder.target.Normalizer('.')
-    #    print normalizer.normalize_path('lev1/lev2')
+class NormalizerTests(unittest.TestCase):
+    def setUp(self):
+        pass
 
-    #    target_id = digg.dev.hackbuilder.target.TargetID.from_string(
-    #            '/lev1/lev2:blah')
-    #    print normalizer.normalize_target_id(target_id)
+    def test_normalize_relative_path(self):
+        normalizer = digg.dev.hackbuilder.target.Normalizer('.')
+        target_id = normalizer.normalize_path('lev2')
+        self.assertEqual(target_id, '/lev2')
+
 
 def main():
-    suite = unittest.TestLoader().loadTestsFromTestCase(TargetTests)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    unittest.main(__name__)
+
+if __name__ == '__main__':
+    main()
