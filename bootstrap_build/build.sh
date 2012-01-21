@@ -27,7 +27,7 @@ virtualenv=${repo_top_dir}/bootstrap-source/${virtualenv_prefix_dir}/virtualenv.
 mach_agent_virtualenv_dir=${build_dir}/virtualenv
 debian_packages_dir=${build_dir}/deb_packages
 mach_agent_package_root=${debian_packages_dir}/digg-hack-builder
-python=python2.5
+python=python2.6
 
 
 function gen_binary () {

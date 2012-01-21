@@ -84,7 +84,7 @@ class DebianPackageBuilder(digg.dev.hackbuilder.plugin_utils.PackageBuilder):
                 'Version: 0.1\n'
                 'Architecture: %s\n'
                 'Maintainer: Digg Ops <ops@digg.com>\n'
-                'Depends: libc6 (>= 2.7-1), python2.5\n'
+                'Depends: libc6 (>= 2.7-1), python2.6\n'
                 'Description: %s\n'
                 '%s\n' %
                 (self.target.target_id.name,

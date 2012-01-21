@@ -25,7 +25,7 @@ from digg.dev.hackbuilder.plugins import build_file_targets
 from digg.dev.hackbuilder.plugin_utils \
         import normal_dep_targets_from_dep_strings
 
-DEFAULT_PYTHON = 'python2.5'
+DEFAULT_PYTHON = 'python2.6'
 DEFAULT_VIRTUALENV_VERSION = '1.6.4'
 VIRTUALENV_REPO_PATH = os.path.join(
         'third_party', 'virtualenv',
