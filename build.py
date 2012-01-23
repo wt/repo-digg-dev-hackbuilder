@@ -20,6 +20,7 @@ import os.path
 import shutil
 import Queue
 
+import digg.dev.hackbuilder.errors
 import digg.dev.hackbuilder.plugins
 from digg.dev.hackbuilder.plugin_utils import BinaryBuilder
 from digg.dev.hackbuilder.plugin_utils import PackageBuilder
@@ -117,7 +118,7 @@ class BuildFileTargetFinder(object):
             if build_file_target.target_id == target_id:
                 return build_file_target
 
-        raise digg.dev.hackbuilder.Error(
+        raise digg.dev.hackbuilder.errors.Error(
                 'No build target found for target id(%s)'
                 % target_id)
 

@@ -12,6 +12,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import errno
+import logging
+import os.path
+
 import digg.dev.hackbuilder.target
 
 
@@ -59,4 +63,24 @@ class BinaryBuilder(Builder):
 
 
 class LibraryBuilder(Builder):
-    pass
+    def do_create_source_tree_work(self):
+        logging.info('Copying %s into source tree', self.target.target_id)
+        full_src_path = os.path.join(self.normalizer.repo_root_path,
+                self.target.target_id.path[1:])
+        full_target_path = os.path.join(self.normalizer.repo_root_path,
+                self.source_path, self.target.target_id.path[1:])
+        for filename in self.target.files:
+            src_filename = os.path.join(full_src_path, filename)
+            dest_filename = os.path.join(full_target_path, filename)
+
+            try:
+                dest_dirname = os.path.dirname(dest_filename)
+                os.makedirs(dest_dirname)
+                logging.debug('Created directory: %s', dest_dirname)
+            except OSError, e:
+                if not e.errno == errno.EEXIST:
+                    raise
+                else:
+                    logging.debug('Directory already exists: %s', dest_dirname)
+            logging.debug('Creating symlink from  %s to %s', src_filename, dest_filename)
+            os.symlink(src_filename, dest_filename)
