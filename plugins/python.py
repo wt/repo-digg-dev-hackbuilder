@@ -14,6 +14,7 @@
 
 from __future__ import with_statement
 
+import errno
 import logging
 import os.path
 import shutil
@@ -246,8 +247,21 @@ class PythonLibraryBuilder(digg.dev.hackbuilder.plugin_utils.LibraryBuilder):
                 self.target.target_id.path[1:])
         full_target_path = os.path.join(self.normalizer.repo_root_path,
                 self.source_path, self.target.target_id.path[1:])
-        logging.debug('Copying %s to %s', full_src_path, full_target_path)
-        shutil.copytree(full_src_path, full_target_path, True)
+        for filename in self.target.files:
+            src_filename = os.path.join(full_src_path, filename)
+            dest_filename = os.path.join(full_target_path, filename)
+
+            try:
+                dest_dirname = os.path.dirname(dest_filename)
+                os.makedirs(dest_dirname)
+                logging.debug('Created directory: %s', dest_dirname)
+            except OSError, e:
+                if not e.errno == errno.EEXIST:
+                    raise
+                else:
+                    logging.debug('Directory already exists: %s', dest_dirname)
+            logging.debug('Copying %s to %s', src_filename, dest_filename)
+            shutil.copy2(src_filename, dest_filename)
 
         self._create_init_py_files()
 
@@ -288,9 +302,10 @@ class PythonLibraryBuilder(digg.dev.hackbuilder.plugin_utils.LibraryBuilder):
 class PythonLibraryBuildTarget(digg.dev.hackbuilder.target.LibraryBuildTarget):
     builder_class = PythonLibraryBuilder
 
-    def __init__(self, target_id, dep_ids, packages=None):
+    def __init__(self, target_id, dep_ids, files, packages=None):
         digg.dev.hackbuilder.target.BuildTarget.__init__(self, target_id,
                 dep_ids=dep_ids)
+        self.files = files
         self.packages = packages
 
 
@@ -375,13 +390,13 @@ def build_file_python_test(repo_path, normalizer):
 
 
 def build_file_python_lib(repo_path, normalizer):
-    def python_lib(name, deps=(), packages=None):
+    def python_lib(name, deps=(), files=None, packages=None):
         logging.debug('Build file target, Python lib: %s', name)
         target_id = digg.dev.hackbuilder.target.TargetID(repo_path, name)
         dep_target_ids = normal_dep_targets_from_dep_strings(repo_path,
                 normalizer, deps)
         python_lib_target = PythonLibraryBuildTarget(target_id,
-                dep_ids=dep_target_ids, packages=packages)
+                dep_ids=dep_target_ids, files=files, packages=packages)
         build_file_targets.put(python_lib_target)
 
     return python_lib
