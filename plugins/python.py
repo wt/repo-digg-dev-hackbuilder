@@ -111,7 +111,8 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                      ),
                     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
-        retcode = virtualenv_proc.wait()
+        virtualenv_proc.communicate()
+        retcode = virtualenv_proc.returncode
         if retcode != 0:
             logging.info('Virtualenv creation failed with exit code = %s',
                     retcode)
@@ -144,7 +145,8 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                 cwd=source_full_path,
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
-        retcode = installer_proc.wait()
+        installer_proc.communicate()
+        retcode = installer_proc.returncode
         if retcode != 0:
             logging.info('Install failed with exit code = %s',
                     retcode)
@@ -194,7 +196,8 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                      ),
                     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
-        retcode = virtualenv_proc.wait()
+        virtualenv_proc.communicate()
+        retcode = virtualenv_proc.returncode
         if retcode != 0:
             logging.info('Making virtualenv relocatable failed with exit code = %s',
                     e.returncode)
@@ -331,7 +334,8 @@ class PythonThirdPartyLibraryBuilder(PythonLibraryBuilder):
                 cwd=full_target_path,
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
-        retcode = installer_proc.wait()
+        installer_proc.communicate()
+        retcode = installer_proc.returncode
         if retcode != 0:
             logging.info('Library install failed with exit code = %s',
                     retcode)
