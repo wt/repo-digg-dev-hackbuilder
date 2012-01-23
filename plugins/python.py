@@ -261,7 +261,7 @@ class PythonLibraryBuilder(digg.dev.hackbuilder.plugin_utils.LibraryBuilder):
                 else:
                     logging.debug('Directory already exists: %s', dest_dirname)
             logging.debug('Copying %s to %s', src_filename, dest_filename)
-            shutil.copy2(src_filename, dest_filename)
+            os.symlink(src_filename, dest_filename)
 
         self._create_init_py_files()
 
