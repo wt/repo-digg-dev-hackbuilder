@@ -12,6 +12,19 @@ python_test('test_target',
            )
 
 python_lib('hackbuilder_lib',
+           files=[
+               'build.py',
+               'cli/commands/build.py',
+               'cli/hack.py',
+               'errors.py',
+               'plugin_utils.py',
+               'plugins/__init__.py',
+               'plugins/debian.py',
+               'plugins/python.py',
+               'target.py',
+               'test_target.py',
+               'util.py',
+               ],
            packages=[
                'digg.dev.hackbuilder',
                'digg.dev.hackbuilder.cli',
