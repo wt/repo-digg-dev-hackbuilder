@@ -71,7 +71,7 @@ function do_build () {
     # copy dep source
     echo 'Beginning source tree creation'
     mkdir -p ${source_dir}/third_party/argparse
-    cp -a ${repo_top_dir}/third_party/argparse/argparse-1.2.1/ \
+    cp -a ${repo_top_dir}/third_party/argparse/argparse-1.2.1 \
             ${source_dir}/third_party/argparse/
     mkdir -p ${source_dir}/${repo_prefix_dir}
     cp -a ${repo_top_dir}/${repo_prefix_dir} \
