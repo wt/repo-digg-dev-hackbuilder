@@ -24,9 +24,9 @@ source_dir=${repo_top_dir}/bootstrap-source
 build_dir=${repo_top_dir}/bootstrap-build/${repo_prefix_dir}
 virtualenv_prefix_dir=third_party/virtualenv/virtualenv-1.6.4
 virtualenv=${repo_top_dir}/bootstrap-source/${virtualenv_prefix_dir}/virtualenv.py
-mach_agent_virtualenv_dir=${build_dir}/virtualenv
+build_virtualenv_dir=${build_dir}/-hack/python_virtualenv
 debian_packages_dir=${build_dir}/deb_packages
-mach_agent_package_root=${debian_packages_dir}/digg-hack-builder
+package_root=${debian_packages_dir}/digg-hack-builder
 python=python2.6
 
 
@@ -37,24 +37,24 @@ function gen_binary () {
 
     echo 'Beginning package build'
     #make virtualenv relocatable
-    ${python} ${virtualenv} --relocatable ${mach_agent_virtualenv_dir}
+    ${python} ${virtualenv} --relocatable ${build_virtualenv_dir}
 
     mkdir ${debian_packages_dir}
-    mkdir ${mach_agent_package_root}
+    mkdir ${package_root}
     # create debian control file
-    mkdir ${mach_agent_package_root}/DEBIAN
-    cp bootstrap_build/debian/control ${mach_agent_package_root}/DEBIAN/control
+    mkdir ${package_root}/DEBIAN
+    cp bootstrap_build/debian/control ${package_root}/DEBIAN/control
 
     #create debian package hierarchy
-    mkdir -p ${mach_agent_package_root}/usr/lib/digg-hack-builder
-    cp -a ${mach_agent_virtualenv_dir} \
-            ${mach_agent_package_root}/usr/lib/digg-hack-builder/virtualenv
-    mkdir -p ${mach_agent_package_root}/usr/bin
-    cp bootstrap_build/hack ${mach_agent_package_root}/usr/bin
+    mkdir -p ${package_root}/usr/lib/digg-hack-builder
+    cp -a ${build_virtualenv_dir} \
+            ${package_root}/usr/lib/digg-hack-builder/virtualenv
+    mkdir -p ${package_root}/usr/bin
+    cp bootstrap_build/hack ${package_root}/usr/bin
     mkdir -p ${package_output_dir}
 
     #create debian binary package
-    dpkg-deb -b ${mach_agent_package_root} ${package_output_dir}
+    dpkg-deb -b ${package_root} ${package_output_dir}
 
     set +x
 }
@@ -92,15 +92,15 @@ function do_build () {
     cp -a ${repo_top_dir}/${virtualenv_prefix_dir} \
             ${source_dir}/third_party/virtualenv/
     ${python} ${virtualenv} --no-site-packages --never-download --distribute \
-            ${mach_agent_virtualenv_dir}
+            ${build_virtualenv_dir}
 
     #Install deps
     echo 'Beginning binary build'
     pushd ${source_dir}/third_party/argparse/argparse-1.2.1/
-    ${mach_agent_virtualenv_dir}/bin/python setup.py install
+    ${build_virtualenv_dir}/bin/python setup.py install
     popd
     pushd ${source_dir}
-    ${mach_agent_virtualenv_dir}/bin/python setup.py install
+    ${build_virtualenv_dir}/bin/python setup.py install
     popd
 
     set +x 
