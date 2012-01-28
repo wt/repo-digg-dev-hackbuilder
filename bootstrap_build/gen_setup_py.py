@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.5
+#!/usr/bin/env python2.6
 #  Copyright 2011 Digg, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
