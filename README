@@ -32,10 +32,25 @@ Instead of "build", you can use "binary" as the target for the build.sh
 command to make a debian binary package. Once the software is built look type
 the following to execute the hack builder tool:
 $ cd ../ (changing into hackbuilder directory)
-$ ../../../bootstrap-build//digg/dev/hackbuilder/virtualenv/bin/hack
+$ ../../../bootstrap-build/digg/dev/hackbuilder/-hack/python_virtualenv/bin/hack
 
-The hack command has some minimal help to get you started. Also, have a look
-at the HACK_BUILD files to get a idea for how to construct new build files.
+
+Getting Started:
+The hack command has subcommands to perform various actions. Here's a list:
+* help - get help for the hack tool and it's subcommands
+* build - builds a target
+* clean - cleans files created by the hack tool
+
+The first thing you might want to do it build something. From the hackbuilder
+source directory, you can type the following to build the hackbuilder with the
+bootstrapped build you created with the above command:
+$ ../../../bootstrap-build/digg/dev/hackbuilder/-hack/python_virtualenv/bin/hack clean
+$ ../../../bootstrap-build/digg/dev/hackbuilder/-hack/python_virtualenv/bin/hack build :hack
+
+These commands will build the hackbuilder with the bootstrapped hackbuilder.
+You will find the resulting binary in
+../../../hack-build/digg/dev/hackbuilder/-hack/python_virtualenv/bin/hack. The
+binary is constructed according to build rules in the HACK_BUILD file.
 
 
 Current Status:
