@@ -46,40 +46,6 @@ def do_build(args):
     build = digg.dev.hackbuilder.build.Build(build_target_trees, normalizer)
     build.build()
 
-    sys.exit(0)
-
-    populate_build_targets(build_file_locals, builder.repo_path, target_path)
-
-    virtualenv_path = os.path.join('third_party', 'virtualenv',
-            'virtualenv-' + DEFAULT_VIRTUALENV_VERSION)
-    logging.info('Virtualenv path relative to repo root: %s' %
-            (virtualenv_path,))
-
-    virtualenv_setup_script_path = os.path.join(virtualenv_path,
-            'virtualenv.py')
-    logging.info('Virtualenv setup script path relative to repo root: %s',
-            virtualenv_setup_script_path)
-
-    virtualenv_target_path = os.path.join(builder.build_dir, target_path, 'virtualenv')
-    logging.info('Virtualenv target path relative to repo root: %s',
-            virtualenv_target_path)
-
-    debian_filesystem_tree_parent_path = (
-            os.path.join(build_dir, 'deb_packages'))
-    logging.info(
-            'Parent of Debian packages filesystem trees relative '
-            'to repo root: %s', debian_filesystem_tree_parent_path)
-
-    package_name = 'digg-hack-builder'
-    debian_filesystem_tree_path = os.path.join(
-            debian_filesystem_tree_parent_path, package_name)
-    logging.info(
-            'Debian filesystem tree path for package (%s) relative '
-            'to repo root: %s', package_name,
-            debian_filesystem_tree_parent_path)
-
-    print args.targets
-
 
 def get_build_argparser(subparsers):
     parser = subparsers.add_parser('build', help='Build targets.')

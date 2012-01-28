@@ -28,16 +28,12 @@ import digg.dev.hackbuilder.plugins
 
 
 def main():
-    try:
-        logging.basicConfig(level=logging.DEBUG)
-        parser = get_parser()
-        args = parser.parse_args()
-        plugins = get_plugin_modules(args.plugins)
-        digg.dev.hackbuilder.plugins.initialize_plugins(plugins)
-        args.func(args)
-    except Exception, e:
-        logging.exception('An uncaught exception occured.')
-        sys.exit(1)
+    logging.basicConfig(level=logging.DEBUG)
+    parser = get_parser()
+    args = parser.parse_args()
+    plugins = get_plugin_modules(args.plugins)
+    digg.dev.hackbuilder.plugins.initialize_plugins(plugins)
+    args.func(args)
 
 
 def get_parser():
