@@ -24,6 +24,9 @@ import digg.dev.hackbuilder.plugins
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
+
+    logging.info('Initial working directory: %s', os.getcwd())
+
     parser = get_parser()
     args = parser.parse_args()
     plugins = get_plugin_modules(args.plugins)

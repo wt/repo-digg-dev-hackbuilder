@@ -48,4 +48,4 @@ def get_root_of_repo_directory_tree(path='.'):
                     'Root of repository not found. Stopped looking at root.')
         current_path = os.path.join(current_path, '..')
 
-    return current_path
+    return os.path.abspath(current_path)

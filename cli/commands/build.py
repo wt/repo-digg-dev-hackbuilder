@@ -25,10 +25,7 @@ DEFAULT_VIRTUALENV_VERSION = '1.6.4'
 def do_build(args):
     logging.info('Entering build mode.')
 
-    current_dir = os.path.abspath(os.getcwd())
-    logging.info('Initial working directory: %s', current_dir)
-
-    repo_root = os.path.abspath(get_root_of_repo_directory_tree())
+    repo_root = get_root_of_repo_directory_tree()
     logging.info('Repository root: %s', repo_root)
 
     normalizer = digg.dev.hackbuilder.target.Normalizer(repo_root)
