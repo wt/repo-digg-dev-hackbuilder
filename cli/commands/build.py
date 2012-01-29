@@ -12,12 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import copy
 import logging
 import os.path
-import sys
 
-import digg.dev.hackbuilder
 import digg.dev.hackbuilder.build
 import digg.dev.hackbuilder.target
 from digg.dev.hackbuilder.util import get_root_of_repo_directory_tree

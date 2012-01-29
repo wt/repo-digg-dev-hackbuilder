@@ -15,12 +15,9 @@
 #!/usr/bin/env python
 
 import argparse
-import glob
 import logging
 import os
 import os.path
-import shutil
-import sys
 
 from digg.dev.hackbuilder.util import get_root_of_repo_directory_tree
 import digg.dev.hackbuilder.cli.commands.build
