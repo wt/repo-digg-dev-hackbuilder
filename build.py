@@ -20,14 +20,12 @@ import os.path
 import shutil
 import Queue
 
+import digg.dev.hackbuilder.common
 import digg.dev.hackbuilder.errors
 import digg.dev.hackbuilder.plugins
 from digg.dev.hackbuilder.plugin_utils import BinaryBuilder
 from digg.dev.hackbuilder.plugin_utils import PackageBuilder
 
-DEFAULT_SOURCE_DIR = 'hack-source'
-DEFAULT_BUILD_DIR = 'hack-build'
-DEFAULT_PACKAGE_DIR = 'hack-packages'
 
 class BuildFileReader(object):
     """A build file reader for reading the HACK_BUILD files.
@@ -134,8 +132,9 @@ class BuildFileTargetFinder(object):
 
 class Build(object):
     def __init__(self, build_target_trees, normalizer,
-            source_path=DEFAULT_SOURCE_DIR, build_path=DEFAULT_BUILD_DIR,
-            package_path=DEFAULT_PACKAGE_DIR):
+            source_path=digg.dev.hackbuilder.common.DEFAULT_SOURCE_DIR,
+            build_path=digg.dev.hackbuilder.common.DEFAULT_BUILD_DIR,
+            package_path=digg.dev.hackbuilder.common.DEFAULT_PACKAGE_DIR):
         self.build_target_trees = build_target_trees
         self.normalizer = normalizer
 
@@ -149,9 +148,7 @@ class Build(object):
             for target_deps in target_dep_sequences.itervalues():
                 for target in [i[0] for i in target_deps]:
                     if target.target_id not in self.builders:
-                        builder = target.builder_class(self.normalizer,
-                                target, self.source_path, self.build_path,
-                                self.package_path)
+                        builder = target.builder_class(target)
                         self.builders[target.target_id] = builder
 
 

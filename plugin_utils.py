@@ -32,14 +32,9 @@ def normal_dep_targets_from_dep_strings(repo_path, normalizer, deps):
 
 
 class Builder(object):
-    def __init__(self, normalizer, target, source_path, build_path,
-            package_path):
-        self.normalizer = normalizer
+    def __init__(self, target):
+        self.normalizer = target.normalizer
         self.target = target
-
-        self.source_path = source_path
-        self.build_path = build_path
-        self.package_path = package_path
 
     def do_create_source_tree_work(self):
         pass
@@ -65,13 +60,9 @@ class BinaryBuilder(Builder):
 class LibraryBuilder(Builder):
     def do_create_source_tree_work(self):
         logging.info('Copying %s into source tree', self.target.target_id)
-        full_src_path = os.path.join(self.normalizer.repo_root_path,
-                self.target.target_id.path[1:])
-        full_target_path = os.path.join(self.normalizer.repo_root_path,
-                self.source_path, self.target.target_id.path[1:])
         for filename in self.target.files:
-            src_filename = os.path.join(full_src_path, filename)
-            dest_filename = os.path.join(full_target_path, filename)
+            src_filename = os.path.join(self.target.target_working_copy_dir, filename)
+            dest_filename = os.path.join(self.target.target_source_dir, filename)
 
             try:
                 dest_dirname = os.path.dirname(dest_filename)

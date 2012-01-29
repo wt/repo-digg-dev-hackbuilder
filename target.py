@@ -16,6 +16,7 @@ import os.path
 import re
 import sys
 
+import digg.dev.hackbuilder.common
 import digg.dev.hackbuilder.errors
 
 
@@ -42,6 +43,8 @@ class Normalizer(object):
 
         Args:
             target_id: a TargetID object
+
+        Returns: a normalized target_id
         """
         if target_id.is_normalized():
             return target_id
@@ -55,7 +58,7 @@ class Normalizer(object):
             name = target_id.name
         else:
             name = ''
-            
+
         return TargetID(path, target_id.name)
 
     def normalize_target_id_with_name(self, target_id):
@@ -131,6 +134,7 @@ class Normalizer(object):
 
     def normalize_path_in_build_file(self, path, build_file_path):
         """Normalize a path found in a build file.
+
         Args:
             path: a path found in the build file
             build_file_path: repository path of the build file in which this
@@ -161,7 +165,7 @@ class TargetID(object):
                     % name)
         self.path = path
         self.name = name
-        
+
         if self.has_name():
             self.id_string = '%s:%s' % (self.path, self.name)
         else:
@@ -210,13 +214,42 @@ class TargetID(object):
 
 
 class BuildTarget(object):
-    def __init__(self, target_id, dep_ids=None):
+    def __init__(self, normalizer, target_id, dep_ids=None):
         if not target_id.is_normalized():
             raise digg.dev.hackbuilder.errors.TargetIDNotNormalizedError(
                     target_id)
+        self.normalizer = normalizer
         self.target_id = target_id
-
         self.dep_ids = dep_ids
+
+        self.working_copy_root = self.normalizer.repo_root_path
+
+        self.target_working_copy_dir = os.path.join(
+                self.normalizer.repo_root_path,
+                self.target_id.path[1:])
+
+        self.source_root = os.path.join(
+                self.normalizer.repo_root_path,
+                digg.dev.hackbuilder.common.DEFAULT_SOURCE_DIR)
+
+        self.target_source_dir = os.path.join(
+                self.normalizer.repo_root_path,
+                digg.dev.hackbuilder.common.DEFAULT_SOURCE_DIR,
+                self.target_id.path[1:])
+
+        self.build_root = os.path.join(
+                self.normalizer.repo_root_path,
+                digg.dev.hackbuilder.common.DEFAULT_BUILD_DIR)
+
+        self.target_build_dir = os.path.join(
+                self.normalizer.repo_root_path,
+                digg.dev.hackbuilder.common.DEFAULT_BUILD_DIR,
+                self.target_id.path[1:],
+                '-' + self.target_id.name)
+
+        self.package_root = os.path.join(
+                self.normalizer.repo_root_path,
+                digg.dev.hackbuilder.common.DEFAULT_PACKAGE_DIR)
 
     def __eq__(self, other):
         return self.target_id == other.target_id

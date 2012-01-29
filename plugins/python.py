@@ -34,24 +34,18 @@ VIRTUALENV_REPO_PATH = os.path.join(
 
 
 class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
-    def __init__(self, normalizer, target, source_path, build_path,
-            package_path):
+    def __init__(self, target):
         digg.dev.hackbuilder.plugin_utils.BinaryBuilder.__init__(self,
-                normalizer, target, source_path, build_path, package_path)
+                target)
 
-        self.binary_build_path = os.path.join(
-                self.normalizer.repo_root_path, self.build_path,
-                self.target.target_id.path[1:],
-                '-' + self.target.target_id.name)
-        self.virtualenv_full_path = os.path.join(
-                self.binary_build_path, 'python_virtualenv')
+        self.virtualenv_full_path = os.path.join(self.target.target_build_dir,
+                'python_virtualenv')
         self.virtualenv_tool_path = os.path.join(
                 self.normalizer.repo_root_path,
                 VIRTUALENV_REPO_PATH, 'virtualenv.py')
 
         self.setup_py_path = os.path.join(
-                self.normalizer.repo_root_path, self.source_path,
-                self.target.target_id.path[1:],
+                self.target.target_source_dir,
                 'setup-%s.py' % self.target.target_id.name)
 
     def do_pre_create_source_tree_work(self, builders):
@@ -136,13 +130,11 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
         logging.info('Installing libs into virtualenv for %s',
                 self.target.target_id)
 
-        source_full_path = os.path.join(self.normalizer.repo_root_path,
-                self.source_path)
         python_bin_path = os.path.join(self.virtualenv_full_path,
                 'bin', 'python')
         installer_proc = subprocess.Popen(
                 (python_bin_path, self.setup_py_path, 'install'),
-                cwd=source_full_path,
+                cwd=self.target.source_root,
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
         installer_proc.communicate()
@@ -212,9 +204,9 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
 class PythonBinaryBuildTarget(digg.dev.hackbuilder.target.BinaryBuildTarget):
     builder_class = PythonBinaryBuilder
 
-    def __init__(self, target_id, dep_ids, entry_point=None):
+    def __init__(self, normalizer, target_id, dep_ids, entry_point=None):
         digg.dev.hackbuilder.target.BinaryBuildTarget.__init__(self,
-                target_id, dep_ids)
+                normalizer, target_id, dep_ids)
         self.entry_point = entry_point
 
 
@@ -258,8 +250,8 @@ class PythonLibraryBuilder(digg.dev.hackbuilder.plugin_utils.LibraryBuilder):
         for path in split_path:
             repo_path = os.path.join(last_path, path)
             init_py_repo_path = os.path.join(repo_path, '__init__.py')
-            full_path = os.path.join(self.normalizer.repo_root_path,
-                    self.source_path, init_py_repo_path)
+            full_path = os.path.join(self.target.source_root,
+                    init_py_repo_path)
             if not os.path.exists(full_path):
                 logging.info('Creating empty file: %s', init_py_repo_path)
                 logging.debug('Creating empty file: %s', full_path)
@@ -273,8 +265,8 @@ class PythonLibraryBuilder(digg.dev.hackbuilder.plugin_utils.LibraryBuilder):
             repo_path_parts = package.split('.')
             repo_path_parts.append('__init__.py')
             init_py_repo_path  = os.path.join(*repo_path_parts)
-            full_path = os.path.join(self.normalizer.repo_root_path,
-                    self.source_path, *repo_path_parts)
+            full_path = os.path.join(self.target.source_root,
+                    *repo_path_parts)
             if not os.path.exists(full_path):
                 logging.info('Creating empty file: %s', init_py_repo_path)
                 logging.debug('Creating empty file: %s', full_path)
@@ -286,9 +278,9 @@ class PythonLibraryBuilder(digg.dev.hackbuilder.plugin_utils.LibraryBuilder):
 class PythonLibraryBuildTarget(digg.dev.hackbuilder.target.LibraryBuildTarget):
     builder_class = PythonLibraryBuilder
 
-    def __init__(self, target_id, dep_ids, files, packages=None):
-        digg.dev.hackbuilder.target.BuildTarget.__init__(self, target_id,
-                dep_ids=dep_ids)
+    def __init__(self, normalizer, target_id, dep_ids, files, packages=None):
+        digg.dev.hackbuilder.target.BuildTarget.__init__(self, normalizer,
+                target_id, dep_ids=dep_ids)
         self.files = files
         self.packages = packages
 
@@ -308,8 +300,8 @@ class PythonThirdPartyLibraryBuilder(PythonLibraryBuilder):
                 (self.target.target_id, binary_builder.target.target_id))
         python_bin_path = os.path.join(binary_builder.virtualenv_full_path,
                 'bin', 'python')
-        full_target_path = os.path.join(self.normalizer.repo_root_path,
-                self.source_path, self.target.lib_dir[1:])
+        full_target_path = os.path.join(self.target.target_source_dir,
+                self.target.lib_dir)
         installer_proc = subprocess.Popen(
                 (python_bin_path, 'setup.py', 'install'),
                 cwd=full_target_path,
@@ -329,11 +321,11 @@ class PythonThirdPartyLibraryBuilder(PythonLibraryBuilder):
 
     def do_create_source_tree_work(self):
         logging.info('Copying %s into source tree using source lib_dir (%s)',
-                self.target.target_id, self.target.lib_dir)
-        full_src_path = os.path.join(self.normalizer.repo_root_path,
-                self.target.lib_dir[1:])
-        full_target_path = os.path.join(self.normalizer.repo_root_path,
-                self.source_path, self.target.lib_dir[1:])
+                self.target.target_id, self.target.normal_lib_dir)
+        full_src_path = os.path.join(self.target.target_working_copy_dir,
+                self.target.lib_dir)
+        full_target_path = os.path.join(self.target.target_source_dir,
+                self.target.lib_dir)
         logging.debug('Copying %s to %s', full_src_path, full_target_path)
         shutil.copytree(full_src_path, full_target_path, True)
 
@@ -342,10 +334,12 @@ class PythonThirdPartyLibraryBuildTarget(
         digg.dev.hackbuilder.target.LibraryBuildTarget):
     builder_class = PythonThirdPartyLibraryBuilder
 
-    def __init__(self, target_id, dep_ids, lib_dir=None):
-        digg.dev.hackbuilder.target.BuildTarget.__init__(self, target_id,
-                dep_ids)
+    def __init__(self, normalizer, target_id, dep_ids, lib_dir=None):
+        digg.dev.hackbuilder.target.BuildTarget.__init__(self, normalizer,
+                target_id, dep_ids)
         self.lib_dir = lib_dir
+        self.normal_lib_dir = self.normalizer.normalize_path_in_build_file(
+                lib_dir, self.target_id.path)
 
 
 def build_file_python_bin(repo_path, normalizer):
@@ -354,7 +348,7 @@ def build_file_python_bin(repo_path, normalizer):
         target_id = digg.dev.hackbuilder.target.TargetID(repo_path, name)
         dep_target_ids = normal_dep_targets_from_dep_strings(repo_path,
                 normalizer, deps)
-        python_bin_target = PythonBinaryBuildTarget(target_id,
+        python_bin_target = PythonBinaryBuildTarget(normalizer, target_id,
                 dep_ids=dep_target_ids, entry_point=entry_point)
         build_file_targets.put(python_bin_target)
 
@@ -367,7 +361,7 @@ def build_file_python_test(repo_path, normalizer):
         target_id = digg.dev.hackbuilder.target.TargetID(repo_path, name)
         dep_target_ids = normal_dep_targets_from_dep_strings(repo_path,
                 normalizer, deps)
-        python_test_target = PythonTestBuildTarget(target_id,
+        python_test_target = PythonTestBuildTarget(normalizer, target_id,
                 dep_ids=dep_target_ids, entry_point=entry_point)
         build_file_targets.put(python_test_target)
 
@@ -380,7 +374,7 @@ def build_file_python_lib(repo_path, normalizer):
         target_id = digg.dev.hackbuilder.target.TargetID(repo_path, name)
         dep_target_ids = normal_dep_targets_from_dep_strings(repo_path,
                 normalizer, deps)
-        python_lib_target = PythonLibraryBuildTarget(target_id,
+        python_lib_target = PythonLibraryBuildTarget(normalizer, target_id,
                 dep_ids=dep_target_ids, files=files, packages=packages)
         build_file_targets.put(python_lib_target)
 
@@ -393,10 +387,8 @@ def build_file_python_third_party_lib(repo_path, normalizer):
         target_id = digg.dev.hackbuilder.target.TargetID(repo_path, name)
         dep_target_ids = normal_dep_targets_from_dep_strings(repo_path,
                 normalizer, deps)
-        normal_lib_dir = normalizer.normalize_path_in_build_file(lib_dir,
-                repo_path)
         python_third_party_lib_target = PythonThirdPartyLibraryBuildTarget(
-                target_id, dep_ids=dep_target_ids, lib_dir=normal_lib_dir)
+                normalizer, target_id, dep_ids=dep_target_ids, lib_dir=lib_dir)
         build_file_targets.put(python_third_party_lib_target)
 
     return python_third_party_lib

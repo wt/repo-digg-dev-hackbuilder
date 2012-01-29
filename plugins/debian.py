@@ -27,22 +27,11 @@ from digg.dev.hackbuilder.plugin_utils import BinaryBuilder
 
 
 class DebianPackageBuilder(digg.dev.hackbuilder.plugin_utils.PackageBuilder):
-    def __init__(self, normalizer, target, source_path, build_path,
-            package_path):
-        digg.dev.hackbuilder.plugin_utils.Builder.__init__(self,
-                normalizer, target, source_path, build_path, package_path)
-
-        self.build_dir = os.path.join(
-                self.normalizer.repo_root_path,
-                self.build_path,
-                self.target.target_id.path[1:],
-                '-' +  self.target.target_id.name)
+    def __init__(self, target):
+        digg.dev.hackbuilder.plugin_utils.Builder.__init__(self, target)
 
         self.full_package_hierarchy_dir = os.path.join(
-                self.normalizer.repo_root_path,
-                self.build_path,
-                self.target.target_id.path[1:],
-                '-' +  self.target.target_id.name, 'dpkg_hierarchy')
+                self.target.target_build_dir, 'dpkg_hierarchy')
 
     def do_pre_build_package_binary_install(self, builders):
         logging.info('Copying built binaries to package hierarchy for %s',
@@ -105,11 +94,9 @@ class DebianPackageBuilder(digg.dev.hackbuilder.plugin_utils.PackageBuilder):
 
     def _create_debian_binary_package(self):
         logging.info('Creating Debian binary package for %s', self.target.target_id)
-        full_pkg_path = os.path.join(
-                self.normalizer.repo_root_path, self.package_path)
         dpkg_deb_proc = subprocess.Popen(
                     ('dpkg-deb', '-b', self.full_package_hierarchy_dir,
-                     full_pkg_path
+                     self.target.package_root,
                      ),
                     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
@@ -140,7 +127,7 @@ def build_file_debian_pkg(repo_path, normalizer):
         target_id = digg.dev.hackbuilder.target.TargetID(repo_path, name)
         dep_target_ids = normal_dep_targets_from_dep_strings(repo_path,
                 normalizer, deps)
-        debian_pkg_target = DebianPackageBuildTarget(target_id,
+        debian_pkg_target = DebianPackageBuildTarget(normalizer, target_id,
                 dep_ids=dep_target_ids)
         build_file_targets.put(debian_pkg_target)
 

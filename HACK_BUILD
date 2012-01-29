@@ -14,6 +14,7 @@ python_test('test_target',
 python_lib('hackbuilder_lib',
            files=[
                'build.py',
+               'common.py',
                'cli/commands/build.py',
                'cli/hack.py',
                'errors.py',
