@@ -174,7 +174,7 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                 self.target.target_id.name)
 
         with open(full_entry_point_wrapper_path, 'w') as f:
-            f.write('#!/bin/bash\n')
+            f.write('#!/bin/bash -e\n')
             f.write('DIR="$( cd -P "$( dirname "$0" )" && pwd )"\n')
             f.write('exec ${DIR}/%s "$@"' % (entry_point_exec_target,))
         os.chmod(full_entry_point_wrapper_path, 0755)
