@@ -73,5 +73,18 @@ class LibraryBuilder(Builder):
                     raise
                 else:
                     logging.debug('Directory already exists: %s', dest_dirname)
-            logging.debug('Creating symlink from  %s to %s', src_filename, dest_filename)
-            os.symlink(src_filename, dest_filename)
+            try:
+                rel_from_path = os.path.relpath(src_filename,
+                        os.path.dirname(dest_filename))
+                os.symlink(rel_from_path, dest_filename)
+                logging.debug('Symlinked %s to %s.', rel_from_path,
+                        dest_filename)
+            except OSError, e:
+                if e.errno != errno.EEXIST:
+                    raise
+                logging.debug('File already existed: %s', dest_filename)
+                if os.readlink(dest_filename) != rel_from_path:
+                    logging.debug('Symlink incorrect. Removing and '
+                            'symlinking %s to %s', rel_from_path, dest_filename)
+                    os.remove(dest_filename)
+                    os.symlink(rel_from_path, dest_filename)
