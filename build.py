@@ -62,7 +62,7 @@ class BuildFileReader(object):
 
         These build file targets are store in a global queue after each build
         file is processed.
-        
+
         Returns: A set of all the build file targets that were on the queue.
         """
         global_build_file_targets_queue = (
