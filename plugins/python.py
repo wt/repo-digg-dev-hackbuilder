@@ -22,6 +22,7 @@ import subprocess
 
 import digg.dev.hackbuilder.target
 import digg.dev.hackbuilder.plugin_utils
+import digg.dev.hackbuilder.util
 from digg.dev.hackbuilder.plugins import build_file_targets
 from digg.dev.hackbuilder.plugin_utils \
         import normal_dep_targets_from_dep_strings
@@ -326,8 +327,9 @@ class PythonThirdPartyLibraryBuilder(PythonLibraryBuilder):
                 self.target.lib_dir)
         full_target_path = os.path.join(self.target.target_source_dir,
                 self.target.lib_dir)
-        logging.debug('Copying %s to %s', full_src_path, full_target_path)
-        shutil.copytree(full_src_path, full_target_path, True)
+        digg.dev.hackbuilder.util.mirror_filesystem_hierarchy(
+                full_src_path,
+                full_target_path)
 
 
 class PythonThirdPartyLibraryBuildTarget(
