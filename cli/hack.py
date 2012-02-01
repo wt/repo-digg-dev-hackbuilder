@@ -19,6 +19,7 @@ import os.path
 
 from digg.dev.hackbuilder.util import get_root_of_repo_directory_tree
 import digg.dev.hackbuilder.cli.commands.build
+import digg.dev.hackbuilder.cli.commands.run
 import digg.dev.hackbuilder.plugins
 
 
@@ -48,7 +49,9 @@ def get_parser():
             help='Name of command to get help for',
             nargs='?')
 
-    parser_build = digg.dev.hackbuilder.cli.commands.build.get_build_argparser(
+    parser_build = digg.dev.hackbuilder.cli.commands.build.get_argparser(
+            subparsers)
+    parser_run = digg.dev.hackbuilder.cli.commands.run.get_argparser(
             subparsers)
 
     parser_clean = subparsers.add_parser('clean', help='Clean up the mess.')
@@ -57,6 +60,7 @@ def get_parser():
     subcommand_parsers = {
             'help': parser_help,
             'build': parser_build,
+            'run': parser_run,
             'clean': parser_clean,
             }
 

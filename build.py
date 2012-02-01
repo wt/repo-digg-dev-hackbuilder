@@ -95,13 +95,13 @@ class BuildFileTargetFinder(object):
 
         dep_trees = {}
         for target_id in target_ids_to_discover:
-            build_target = self._get_build_target(target_id)
+            build_target = self.get_build_target(target_id)
             dep_targets = self.get_target_trees(
                     target_ids_to_discover=build_target.dep_ids)
             dep_trees[build_target] = dep_targets
         return dep_trees
 
-    def _get_build_target(self, target_id):
+    def get_build_target(self, target_id):
         get_build_file_targets_for_repo_path = (
                 self.build_file_reader.get_build_file_targets_for_repo_path)
         build_file_path = target_id.path

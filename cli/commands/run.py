@@ -1,4 +1,4 @@
-#  Copyright 2011 Digg, Inc.
+#  Copyright 2012 Warren Turkal
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -12,6 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from __future__ import print_function
+
 import logging
 import os.path
 
@@ -20,8 +22,8 @@ import digg.dev.hackbuilder.target
 from digg.dev.hackbuilder.util import get_root_of_repo_directory_tree
 
 
-def do_build(args):
-    logging.info('Entering build mode.')
+def do_run(args):
+    logging.info('Entering run mode.')
 
     repo_root = get_root_of_repo_directory_tree()
     logging.info('Repository root: %s', repo_root)
@@ -32,26 +34,33 @@ def do_build(args):
     build_file_target_finder = (
             digg.dev.hackbuilder.build.BuildFileTargetFinder(
                 normalizer, build_file_reader))
-    build_file_target_finder.seed_from_cli_build_target_ids(args.targets)
-    build_target_trees = build_file_target_finder.get_target_trees()
-
-    build = digg.dev.hackbuilder.build.Build(build_target_trees, normalizer)
-    build.build()
+    target_id = digg.dev.hackbuilder.target.TargetID.from_string(args.target)
+    target_id = normalizer.normalize_target_id(target_id)
+    target = build_file_target_finder.get_build_target(target_id)
+    all_args = [target.bin_path] + args.args
+    command_string = '" "'.join(all_args)
+    logging.info('Execing command: %s', command_string)
+    os.execv(target.bin_path, all_args)
 
 
 def get_argparser(subparsers):
-    parser = subparsers.add_parser('build', help='Build targets.')
+    parser = subparsers.add_parser('run', help='Run binary targets.',
+            description='This subcommand can be used to run a binary '
+                        'target. In order to pass arguments prefixed '
+                        'with dashes (e.g. -a or --blah), please add '
+                        'a -- argument to prevent further argument '
+                        'parsing. For example: "%(prog)s -- binary '
+                        'arg0 --arg1"')
     parser.add_argument(
-            '--jobs', '-j',
-            default=1,
-            type=int,
-            help='Number of parallel actions. (default=1) '
-                 '(parallel actions not yet implemented',)
+            'target',
+            default='',
+            help='Target to run.')
     parser.add_argument(
-            'targets',
-            default=[''],
-            help='Targets to operate on.',
+            'args',
+            default=[],
+            type=str,
+            help='Command line arguments for the target.',
             nargs='*')
-    parser.set_defaults(func=do_build)
+    parser.set_defaults(func=do_run)
 
     return parser
