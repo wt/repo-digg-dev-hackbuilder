@@ -39,15 +39,9 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
         digg.dev.hackbuilder.plugin_utils.BinaryBuilder.__init__(self,
                 target)
 
-        self.virtualenv_full_path = os.path.join(self.target.target_build_dir,
-                'python_virtualenv')
         self.virtualenv_tool_path = os.path.join(
                 self.normalizer.repo_root_path,
                 VIRTUALENV_REPO_PATH, 'virtualenv.py')
-
-        self.setup_py_path = os.path.join(
-                self.target.target_source_dir,
-                'setup-%s.py' % self.target.target_id.name)
 
     def do_pre_create_source_tree_work(self, builders):
         logging.info('Creating %s-setup.py for %s',
@@ -88,21 +82,22 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                  self.target.entry_point))
         logging.debug('Setup script contents:\n%s' % setup_py_text)
 
-        logging.debug('Absolute setup script path: %s', self.setup_py_path)
-        with open(self.setup_py_path, 'w') as f:
+        logging.debug('Absolute setup script path: %s',
+                self.target.setup_py_path)
+        with open(self.target.setup_py_path, 'w') as f:
             f.write(setup_py_text)
 
     def do_create_build_environment_work(self):
         logging.info('Creating virtualenv for %s', self.target.target_id)
         logging.debug('Absolute path for virtualenv: %s',
-                self.virtualenv_full_path)
+                self.target.virtualenv_root)
         logging.debug('Absolute path for virtualenv tool: %s',
                 self.virtualenv_tool_path)
 
         virtualenv_proc = subprocess.Popen(
                     (DEFAULT_PYTHON, self.virtualenv_tool_path,
                      '--no-site-packages', '--never-download', '--distribute',
-                     self.virtualenv_full_path
+                     self.target.virtualenv_root
                      ),
                     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
@@ -131,10 +126,10 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
         logging.info('Installing libs into virtualenv for %s',
                 self.target.target_id)
 
-        python_bin_path = os.path.join(self.virtualenv_full_path,
+        python_bin_path = os.path.join(self.target.virtualenv_root,
                 'bin', 'python')
         installer_proc = subprocess.Popen(
-                (python_bin_path, self.setup_py_path, 'install'),
+                (python_bin_path, self.target.setup_py_path, 'install'),
                 cwd=self.target.source_root,
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
@@ -158,7 +153,7 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                 package_builder.full_package_hierarchy_dir, 'usr', 'lib',
                 package_builder.target.target_id.name, 
                 '-'.join((self.target.target_id.name, 'virtualenv')))
-        shutil.copytree(self.virtualenv_full_path, full_virtualenv_dest_path,
+        shutil.copytree(self.target.virtualenv_root, full_virtualenv_dest_path,
                 True)
 
         logging.info('Creating wrapper script for %s for package %s',
@@ -185,7 +180,7 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                 self.target.target_id)
         virtualenv_proc = subprocess.Popen(
                     (DEFAULT_PYTHON, self.virtualenv_tool_path,
-                     '--relocatable', self.virtualenv_full_path
+                     '--relocatable', self.target.virtualenv_root
                      ),
                     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
@@ -209,6 +204,13 @@ class PythonBinaryBuildTarget(digg.dev.hackbuilder.target.BinaryBuildTarget):
         digg.dev.hackbuilder.target.BinaryBuildTarget.__init__(self,
                 normalizer, target_id, dep_ids)
         self.entry_point = entry_point
+        self.virtualenv_root = os.path.join(self.target_build_dir,
+                'python_virtualenv')
+        self.bin_path = os.path.join(self.virtualenv_root, 'bin',
+                self.target_id.name)
+        self.setup_py_path = os.path.join(
+                self.target_source_dir,
+                'setup-%s.py' % self.target_id.name)
 
 
 class PythonTestBuilder(PythonBinaryBuilder):
@@ -299,7 +301,7 @@ class PythonThirdPartyLibraryBuilder(PythonLibraryBuilder):
 
         logging.info('Installing %s in %s binary build directory' %
                 (self.target.target_id, binary_builder.target.target_id))
-        python_bin_path = os.path.join(binary_builder.virtualenv_full_path,
+        python_bin_path = os.path.join(binary_builder.target.virtualenv_root,
                 'bin', 'python')
         full_target_path = os.path.join(self.target.target_source_dir,
                 self.target.lib_dir)
