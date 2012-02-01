@@ -19,8 +19,6 @@ import digg.dev.hackbuilder.build
 import digg.dev.hackbuilder.target
 from digg.dev.hackbuilder.util import get_root_of_repo_directory_tree
 
-DEFAULT_VIRTUALENV_VERSION = '1.6.4'
-
 
 def do_build(args):
     logging.info('Entering build mode.')
