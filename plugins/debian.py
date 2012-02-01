@@ -70,13 +70,14 @@ class DebianPackageBuilder(digg.dev.hackbuilder.plugin_utils.PackageBuilder):
 
         control_file_text = (
                 'Package: %s\n'
-                'Version: 0.1\n'
+                'Version: %s\n'
                 'Architecture: %s\n'
                 'Maintainer: Digg Ops <ops@digg.com>\n'
                 'Depends: libc6 (>= 2.7-1), python2.6\n'
                 'Description: %s\n'
                 '%s\n' %
                 (self.target.target_id.name,
+                 self.target.dpkg_version,
                  deb_arch,
                  'stuff',
                  ' More stuff.'
@@ -120,15 +121,23 @@ class DebianPackageBuildTarget(
         digg.dev.hackbuilder.target.PackageBuildTarget):
     builder_class = DebianPackageBuilder
 
+    def __init__(self, normalizer, target_id, dep_ids=None, dpkg_version=None):
+        digg.dev.hackbuilder.target.PackageBuildTarget.__init__(self,
+                normalizer, target_id, dep_ids)
+        if dpkg_version is None:
+            self.dpkg_version = '0.0.0.0.1'
+        else:
+            self.dpkg_version = dpkg_version
+
 
 def build_file_debian_pkg(repo_path, normalizer):
-    def debian_pkg(name, deps=()):
+    def debian_pkg(name, deps=(), version=None):
         logging.debug('Build file target, Debian package: %s', name)
         target_id = digg.dev.hackbuilder.target.TargetID(repo_path, name)
         dep_target_ids = normal_dep_targets_from_dep_strings(repo_path,
                 normalizer, deps)
         debian_pkg_target = DebianPackageBuildTarget(normalizer, target_id,
-                dep_ids=dep_target_ids)
+                dep_ids=dep_target_ids, dpkg_version=version)
         build_file_targets.put(debian_pkg_target)
 
     return debian_pkg
