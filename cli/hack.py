@@ -29,14 +29,17 @@ def main():
     logging.info('Initial working directory: %s', os.getcwd())
 
     parser = get_parser()
+    known_args, extra_args = parser.parse_known_args()
+    plugin_modules = get_plugin_modules(known_args.plugins)
+    digg.dev.hackbuilder.plugins.initialize_plugins(plugin_modules, parser)
     args = parser.parse_args()
-    plugins = get_plugin_modules(args.plugins)
-    digg.dev.hackbuilder.plugins.initialize_plugins(plugins)
+    digg.dev.hackbuilder.plugins.share_args_with_plugins(plugin_modules, args)
     args.func(args)
 
 
 def get_parser():
-    parser = argparse.ArgumentParser(description='Hack build tool.')
+    parser = argparse.ArgumentParser(description='Hack build tool.',
+            add_help=False)
     parser.add_argument('--plugins',
             action='append',
             default=['debian', 'python'],

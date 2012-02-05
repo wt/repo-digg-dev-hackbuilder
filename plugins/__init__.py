@@ -46,11 +46,22 @@ def get_all_build_file_rules(repo_path, normalizer):
     return all_build_file_rules
 
 
-def initialize_plugins(plugins):
+def initialize_plugins(plugins, argparser):
     global plugin_modules
     global build_file_rules_generators
     build_file_rules_generators = _get_all_build_file_rules_generators(plugins)
     plugin_modules = set(plugins)
+    for plugin_module in plugin_modules:
+        try:
+            plugin_module.add_argparser_arguments(argparser)
+        except AttributeError:
+            # Plugin module doesn't have additional args.
+            pass
+
+
+def share_args_with_plugins(plugin_modules, args):
+    for plugin_module in plugin_modules:
+        plugin_module.ARGS = args
 
 
 # This is a global variable that is meant to hold all the functions that
