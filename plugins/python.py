@@ -34,6 +34,17 @@ VIRTUALENV_REPO_PATH = os.path.join(
         'virtualenv-' + DEFAULT_VIRTUALENV_VERSION)
 
 
+def add_argparser_arguments(parser):
+    parser.add_argument('--python_install_method', default='install',
+            choices=['install', 'develop'],
+            help='Choose method for python package installation. The '
+                 '"install" method copies over files. The "develop" method '
+                 'installs a package in develop mode so mode so that source '
+                 'changes are picked up without reinstalling the package. '
+                 'Working packages can only be built with the "install" '
+                 'method. (Default: install)')
+
+
 class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
     def __init__(self, target):
         digg.dev.hackbuilder.plugin_utils.BinaryBuilder.__init__(self,
@@ -129,7 +140,8 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
         python_bin_path = os.path.join(self.target.virtualenv_root,
                 'bin', 'python')
         installer_proc = subprocess.Popen(
-                (python_bin_path, self.target.setup_py_path, 'install'),
+                (python_bin_path, self.target.setup_py_path,
+                    ARGS.python_install_method),
                 cwd=self.target.source_root,
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
