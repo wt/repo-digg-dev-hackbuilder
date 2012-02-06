@@ -312,7 +312,7 @@ class PythonThirdPartyLibraryBuilder(PythonLibraryBuilder):
         python_bin_path = os.path.join(binary_builder.target.virtualenv_root,
                 'bin', 'python')
         full_target_path = os.path.join(self.target.target_source_dir,
-                self.target.lib_dir)
+                self.target.setup_py_dir)
         installer_proc = subprocess.Popen(
                 (python_bin_path, 'setup.py', 'install'),
                 cwd=full_target_path,
@@ -344,10 +344,14 @@ class PythonThirdPartyLibraryBuildTarget(
         digg.dev.hackbuilder.target.LibraryBuildTarget):
     builder_class = PythonThirdPartyLibraryBuilder
 
-    def __init__(self, normalizer, target_id, dep_ids, lib_dir=None):
+    def __init__(self, normalizer, target_id, dep_ids, lib_dir=None,
+            setup_py_dir=None):
         digg.dev.hackbuilder.target.BuildTarget.__init__(self, normalizer,
                 target_id, dep_ids)
         self.lib_dir = lib_dir
+        self.setup_py_dir = setup_py_dir
+        if setup_py_dir is None:
+            self.setup_py_dir = lib_dir
         self.normal_lib_dir = self.normalizer.normalize_path_in_build_file(
                 lib_dir, self.target_id.path)
 
@@ -392,13 +396,14 @@ def build_file_python_lib(repo_path, normalizer):
 
 
 def build_file_python_third_party_lib(repo_path, normalizer):
-    def python_third_party_lib(name, deps=(), lib_dir=None):
+    def python_third_party_lib(name, deps=(), lib_dir=None, setup_py_dir=None):
         logging.debug('Build file target, Python 3rd party lib: %s', name)
         target_id = digg.dev.hackbuilder.target.TargetID(repo_path, name)
         dep_target_ids = normal_dep_targets_from_dep_strings(repo_path,
                 normalizer, deps)
         python_third_party_lib_target = PythonThirdPartyLibraryBuildTarget(
-                normalizer, target_id, dep_ids=dep_target_ids, lib_dir=lib_dir)
+                normalizer, target_id, dep_ids=dep_target_ids, lib_dir=lib_dir,
+                setup_py_dir=setup_py_dir)
         build_file_targets.put(python_third_party_lib_target)
 
     return python_third_party_lib
