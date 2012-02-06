@@ -54,18 +54,19 @@ class DebianPackageBuilder(digg.dev.hackbuilder.plugin_utils.PackageBuilder):
                 ['dpkg-architecture', '-qDEB_BUILD_ARCH'],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
-        retcode = deb_arch_proc.wait()
+        (stdoutdata, stderrdata) = deb_arch_proc.communicate()
+        retcode = deb_arch_proc.returncode
         if retcode != 0:
             logging.info(
                     'Finding Debian architecture failed with exit code = %s.',
                     retcode)
             logging.info('Finding Debian architecture stdout:\n%s',
-                    deb_arch_proc.stdout.read())
+                    stdoutdata)
             logging.info('Finding Debian architecture stderr:\n%s',
-                    deb_arch_proc.stderr.read())
+                    stderrdata)
             raise digg.dev.hackbuilder.errors.Error(
                     'dpkg-architecture call failed with exitcode %s', retcode)
-        deb_arch = deb_arch_proc.stdout.read().strip()
+        deb_arch = stdoutdata.strip()
         logging.info('Debian architecture: %s', deb_arch)
 
         control_file_text = (
@@ -101,19 +102,20 @@ class DebianPackageBuilder(digg.dev.hackbuilder.plugin_utils.PackageBuilder):
                      ),
                     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
-        retcode = dpkg_deb_proc.wait()
+        (stdoutdata, stderrdata) = dpkg_deb_proc.communicate()
+        retcode = dpkg_deb_proc.returncode
         if retcode != 0:
             logging.info('Debian binary package creation failed.')
             logging.info('Making virtualenv relocatable failed with exit code = %s',
                     retcode)
             logging.info('Making virtualenv relocatable stdout:\n%s',
-                    dpkg_deb_proc.stdout.read())
+                    stdoutdata)
             logging.info('Making virtualenv relocatable stderr:\n%s',
-                    dpkg_deb_proc.stderr.read())
+                    stderrdata)
             raise digg.dev.hackbuilder.errors.Error(
                     'dpkg-deb call failed with exitcode %s', retcode)
 
-        package_file_path = dpkg_deb_proc.stdout.read().split()[5][1:-2]
+        package_file_path = stdoutdata.split()[5][1:-2]
         logging.info('Package build at: %s', package_file_path)
 
 

@@ -36,7 +36,7 @@ VIRTUALENV_REPO_PATH = os.path.join(
 
 def add_argparser_arguments(parser):
     parser.add_argument('--python_install_method', default='install',
-            choices=['install', 'develop'],
+            choices=['install', 'develop'], nargs='?',
             help='Choose method for python package installation. The '
                  '"install" method copies over files. The "develop" method '
                  'installs a package in develop mode so mode so that source '
@@ -112,15 +112,13 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                      ),
                     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
-        virtualenv_proc.communicate()
+        (stdoutdata, stderrdata) = virtualenv_proc.communicate()
         retcode = virtualenv_proc.returncode
         if retcode != 0:
             logging.info('Virtualenv creation failed with exit code = %s',
                     retcode)
-            logging.info('Virtualenv creation stdout:\n%s',
-                    virtualenv_proc.stdout.read())
-            logging.info('Virtualenv creation stderr:\n%s',
-                    virtualenv_proc.stderr.read())
+            logging.info('Virtualenv creation stdout:\n%s', stdoutdata)
+            logging.info('Virtualenv creation stderr:\n%s', stderrdata)
             raise digg.dev.hackbuilder.errors.Error(
                     'Virtualenv creation failed.')
 
@@ -145,15 +143,13 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                 cwd=self.target.source_root,
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
-        installer_proc.communicate()
+        (stdoutdata, stderrdata) = installer_proc.communicate()
         retcode = installer_proc.returncode
         if retcode != 0:
             logging.info('Install failed with exit code = %s',
                     retcode)
-            logging.info('Install stdout:\n%s',
-                    install_proc.stdout.read())
-            logging.info('Install stderr:\n%s',
-                    install_proc.stderr.read())
+            logging.info('Install stdout:\n%s', stdoutdata)
+            logging.info('Install stderr:\n%s', stderrdata)
             raise digg.dev.hackbuilder.errors.Error(
                     'Install failed.')
 
@@ -196,15 +192,15 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                      ),
                     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
-        virtualenv_proc.communicate()
+        (stdoutdata, stderrdata) = virtualenv_proc.communicate()
         retcode = virtualenv_proc.returncode
         if retcode != 0:
             logging.info('Making virtualenv relocatable failed with exit code = %s',
                     e.returncode)
             logging.info('Making virtualenv relocatable stdout:\n%s',
-                    stdout.getvalue())
+                    stdoutdata)
             logging.info('Making virtualenv relocatable stderr:\n%s',
-                    stderr.getvalue())
+                    stderrdata)
             raise digg.dev.hackbuilder.errors.Error(
                     'Making virtualenv relocatable failed.')
 
@@ -322,15 +318,13 @@ class PythonThirdPartyLibraryBuilder(PythonLibraryBuilder):
                 cwd=full_target_path,
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
-        installer_proc.communicate()
+        (stdoutdata, stderrdata) = installer_proc.communicate()
         retcode = installer_proc.returncode
         if retcode != 0:
             logging.info('Library install failed with exit code = %s',
                     retcode)
-            logging.info('Library install stdout:\n%s',
-                    installer_proc.stdout.read())
-            logging.info('Library install stderr:\n%s',
-                    installer_proc.stderr.read())
+            logging.info('Library install stdout:\n%s', stdoutdata)
+            logging.info('Library install stderr:\n%s', stderrdata)
             raise digg.dev.hackbuilder.errors.Error(
                     'Library install failed.')
 
