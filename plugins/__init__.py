@@ -17,6 +17,11 @@ import Queue
 import digg.dev.hackbuilder.errors
 
 
+plugin_names = [
+        'python',
+        'debian',
+        ]
+
 def _get_all_build_file_rules_generators(plugins):
     build_file_rules_generators = set()
     for plugin in plugins:

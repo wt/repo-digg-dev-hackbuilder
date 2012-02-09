@@ -29,8 +29,8 @@ def main():
     logging.info('Initial working directory: %s', os.getcwd())
 
     parser = get_parser()
-    known_args, extra_args = parser.parse_known_args()
-    plugin_modules = get_plugin_modules(known_args.plugins)
+    plugin_modules = get_plugin_modules(
+            digg.dev.hackbuilder.plugins.plugin_names)
     digg.dev.hackbuilder.plugins.initialize_plugins(plugin_modules, parser)
     args = parser.parse_args()
     digg.dev.hackbuilder.plugins.share_args_with_plugins(plugin_modules, args)
@@ -38,12 +38,7 @@ def main():
 
 
 def get_parser():
-    parser = argparse.ArgumentParser(description='Hack build tool.',
-            add_help=False)
-    parser.add_argument('--plugins',
-            action='append',
-            default=['debian', 'python'],
-            help='List of plugins to load')
+    parser = argparse.ArgumentParser(description='Hack build tool.')
     subparsers = parser.add_subparsers(title='Subcommands')
 
     parser_help = subparsers.add_parser('help', help='Subcommand help')
