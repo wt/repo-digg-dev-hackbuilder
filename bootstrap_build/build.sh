@@ -22,7 +22,7 @@ package_output_dir=${repo_top_dir}/bootstrap-packages
 repo_prefix_dir=digg/dev/hackbuilder
 source_dir=${repo_top_dir}/bootstrap-source
 build_dir=${repo_top_dir}/bootstrap-build/${repo_prefix_dir}
-virtualenv_prefix_dir=third_party/virtualenv/virtualenv-1.6.4
+virtualenv_prefix_dir=third_party/py/virtualenv/virtualenv-1.6.4
 virtualenv=${repo_top_dir}/bootstrap-source/${virtualenv_prefix_dir}/virtualenv.py
 build_virtualenv_dir=${build_dir}/-hack/python_virtualenv
 debian_packages_dir=${build_dir}/deb_packages
@@ -70,9 +70,9 @@ function do_build () {
 
     # copy dep source
     echo 'Beginning source tree creation'
-    mkdir -p ${source_dir}/third_party/argparse
-    cp -a ${repo_top_dir}/third_party/argparse/argparse-1.2.1 \
-            ${source_dir}/third_party/argparse/
+    mkdir -p ${source_dir}/third_party/py/argparse
+    cp -a ${repo_top_dir}/third_party/py/argparse/argparse-1.2.1 \
+            ${source_dir}/third_party/py/argparse/
     mkdir -p ${source_dir}/${repo_prefix_dir}
     cp -a ${repo_top_dir}/${repo_prefix_dir} \
             ${source_dir}/${repo_prefix_dir}/..
@@ -88,15 +88,15 @@ function do_build () {
     touch ${source_dir}/digg/dev/hackbuilder/plugins/__init__.py
 
     echo 'Beginning build environment creation'
-    mkdir -p ${source_dir}/third_party/virtualenv
+    mkdir -p ${source_dir}/third_party/py/virtualenv
     cp -a ${repo_top_dir}/${virtualenv_prefix_dir} \
-            ${source_dir}/third_party/virtualenv/
+            ${source_dir}/third_party/py/virtualenv/
     ${python} ${virtualenv} --no-site-packages --never-download --distribute \
             ${build_virtualenv_dir}
 
     #Install deps
     echo 'Beginning binary build'
-    pushd ${source_dir}/third_party/argparse/argparse-1.2.1/
+    pushd ${source_dir}/third_party/py/argparse/argparse-1.2.1/
     ${build_virtualenv_dir}/bin/python setup.py install
     popd
     pushd ${source_dir}

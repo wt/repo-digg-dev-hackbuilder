@@ -35,6 +35,6 @@ python_lib('hackbuilder_lib',
                'digg.dev.hackbuilder.plugins',
                ],
            deps=[
-               '/third_party/argparse:prod',
+               '/third_party/py/argparse:prod',
                ],
            )

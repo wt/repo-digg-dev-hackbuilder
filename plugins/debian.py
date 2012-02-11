@@ -74,12 +74,13 @@ class DebianPackageBuilder(digg.dev.hackbuilder.plugin_utils.PackageBuilder):
                 'Version: %s\n'
                 'Architecture: %s\n'
                 'Maintainer: Digg Ops <ops@digg.com>\n'
-                'Depends: libc6 (>= 2.7-1), python2.6\n'
+                'Depends: %s\n'
                 'Description: %s\n'
                 '%s\n' %
                 (self.target.target_id.name,
                  self.target.dpkg_version,
                  deb_arch,
+                 ', '.join(self.target.dpkg_deps),
                  'stuff',
                  ' More stuff.'
                  ))
@@ -123,23 +124,33 @@ class DebianPackageBuildTarget(
         digg.dev.hackbuilder.target.PackageBuildTarget):
     builder_class = DebianPackageBuilder
 
-    def __init__(self, normalizer, target_id, dep_ids=None, dpkg_version=None):
+    def __init__(self, normalizer, target_id, dep_ids=None, dpkg_version=None,
+            extra_dpkg_deps=None):
         digg.dev.hackbuilder.target.PackageBuildTarget.__init__(self,
                 normalizer, target_id, dep_ids)
+
         if dpkg_version is None:
             self.dpkg_version = '0.0.0.0.1'
         else:
             self.dpkg_version = dpkg_version
 
+        self.dpkg_deps = set([
+                'libc6 (>= 2.7-1)',
+                'python2.6'
+                ])
+        if extra_dpkg_deps is not None:
+            self.dpkg_deps.update(extra_dpkg_deps)
+
 
 def build_file_debian_pkg(repo_path, normalizer):
-    def debian_pkg(name, deps=(), version=None):
+    def debian_pkg(name, deps=(), version=None, extra_dpkg_deps=None):
         logging.debug('Build file target, Debian package: %s', name)
         target_id = digg.dev.hackbuilder.target.TargetID(repo_path, name)
         dep_target_ids = normal_dep_targets_from_dep_strings(repo_path,
                 normalizer, deps)
         debian_pkg_target = DebianPackageBuildTarget(normalizer, target_id,
-                dep_ids=dep_target_ids, dpkg_version=version)
+                dep_ids=dep_target_ids, dpkg_version=version,
+                extra_dpkg_deps=extra_dpkg_deps)
         build_file_targets.put(debian_pkg_target)
 
     return debian_pkg
