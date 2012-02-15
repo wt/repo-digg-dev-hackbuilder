@@ -65,10 +65,13 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
             current_package = '.'.join([current_package, path_part])
             packages.add(current_package[1:])
 
+        data_files = {}
         for dep_id in self.target.dep_ids:
             builder = builders[dep_id]
             if isinstance(builder, PythonLibraryBuilder):
                 packages.update(builder.get_transitive_python_packages(
+                    builders))
+                data_files.update(builder.get_transitive_python_package_data(
                     builders))
 
         packages_string = ''
@@ -86,11 +89,13 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                 "            '%s = %s',\n"
                 '        ],\n'
                 '    },\n'
+                '    package_data=%s,\n'
                 ')' %
                 (self.target.target_id.name,
                  packages_string,
                  self.target.target_id.name,
-                 self.target.entry_point))
+                 self.target.entry_point,
+                 repr(data_files)))
         logging.debug('Setup script contents:\n%s' % setup_py_text)
 
         logging.debug('Absolute setup script path: %s',
@@ -240,6 +245,18 @@ class PythonLibraryBuilder(digg.dev.hackbuilder.plugin_utils.LibraryBuilder):
 
         return packages
 
+    def get_transitive_python_package_data(self, builders):
+        target_package_name = self.target.target_id.path[1:].replace(
+                os.path.sep, '.')
+        python_package_data = {target_package_name: self.target.data_files}
+        for dep_id in self.target.dep_ids:
+            builder = builders[dep_id]
+            if isinstance(builder, PythonLibraryBuilder):
+                python_package_data.update(
+                        builder.get_transitive_python_package_data(builders))
+
+        return python_package_data
+
     def do_pre_build_binary_library_install(self, builders, binary_builder):
         for dep_id in self.target.dep_ids:
             builder = builders[dep_id]
@@ -289,16 +306,25 @@ class PythonLibraryBuilder(digg.dev.hackbuilder.plugin_utils.LibraryBuilder):
 class PythonLibraryBuildTarget(digg.dev.hackbuilder.target.LibraryBuildTarget):
     builder_class = PythonLibraryBuilder
 
-    def __init__(self, normalizer, target_id, dep_ids, files, packages=None):
+    def __init__(self, normalizer, target_id, dep_ids, source_files,
+            packages=None, data_files=None):
         digg.dev.hackbuilder.target.BuildTarget.__init__(self, normalizer,
                 target_id, dep_ids=dep_ids)
-        self.files = files
+        self.source_files = source_files
+        if data_files is None:
+            self.data_files = []
+        else:
+            self.data_files = data_files
+        self.all_files = self.source_files + self.data_files
         self.packages = packages
 
 
 class PythonThirdPartyLibraryBuilder(PythonLibraryBuilder):
     def get_transitive_python_packages(self, builders):
         return set()
+
+    def get_transitive_python_package_data(self, builders):
+        return {}
 
     def do_pre_build_binary_library_install(self, builders, binary_builder):
         for dep_id in self.target.dep_ids:
@@ -383,13 +409,14 @@ def build_file_python_test(repo_path, normalizer):
 
 
 def build_file_python_lib(repo_path, normalizer):
-    def python_lib(name, deps=(), files=None, packages=None):
+    def python_lib(name, deps=(), srcs=None, packages=None, files=None):
         logging.debug('Build file target, Python lib: %s', name)
         target_id = digg.dev.hackbuilder.target.TargetID(repo_path, name)
         dep_target_ids = normal_dep_targets_from_dep_strings(repo_path,
                 normalizer, deps)
         python_lib_target = PythonLibraryBuildTarget(normalizer, target_id,
-                dep_ids=dep_target_ids, files=files, packages=packages)
+                dep_ids=dep_target_ids, source_files=srcs,
+                packages=packages, data_files=files)
         build_file_targets.put(python_lib_target)
 
     return python_lib

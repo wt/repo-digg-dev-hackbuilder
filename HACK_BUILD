@@ -13,7 +13,7 @@ python_test('test_target',
            )
 
 python_lib('hackbuilder_lib',
-           files=[
+           srcs=[
                'build.py',
                'common.py',
                'cli/commands/build.py',

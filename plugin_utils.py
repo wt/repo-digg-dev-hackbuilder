@@ -60,7 +60,7 @@ class BinaryBuilder(Builder):
 class LibraryBuilder(Builder):
     def do_create_source_tree_work(self):
         logging.info('Copying %s into source tree', self.target.target_id)
-        for filename in self.target.files:
+        for filename in self.target.all_files:
             src_filename = os.path.join(self.target.target_working_copy_dir, filename)
             dest_filename = os.path.join(self.target.target_source_dir, filename)
 
