@@ -3,12 +3,12 @@ debian_pkg('digg-hackbuilder',
            deps=[':hack'])
 
 python_bin('hack',
-           entry_point='digg.dev.hackbuilder.cli.hack:main',
+           console_script='digg.dev.hackbuilder.cli.hack:main',
            deps=[':hackbuilder_lib']
            )
 
 python_test('test_target',
-           entry_point='digg.dev.hackbuilder.test_target:main',
+           console_script='digg.dev.hackbuilder.test_target:main',
            deps=[':hackbuilder_lib']
            )
 

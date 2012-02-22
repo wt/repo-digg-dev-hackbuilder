@@ -14,7 +14,7 @@
 #  limitations under the License.
 
 
-def build_target_python_bin(target_name, entry_point, deps):
+def build_target_python_bin(target_name, console_script, deps):
     packages = [
             'digg',
             'digg.dev',
@@ -31,7 +31,7 @@ def build_target_python_bin(target_name, entry_point, deps):
             "    packages=['" + "','".join(packages) + "'],\n"
             '    entry_points={\n'
             "        'console_scripts': [\n"
-            "            '" + target_name + ' = ' + entry_point + "',\n"
+            "            '" + target_name + ' = ' + console_script + "',\n"
             '        ],\n'
             '    },\n'
             '    zip_safe=False,\n'
@@ -40,7 +40,7 @@ def build_target_python_bin(target_name, entry_point, deps):
 
     build_targets[target_name] = {
             'type': 'python_bin',
-            'entry_point': entry_point,
+            'console_script': console_script,
             'packages': packages,
             'deps': deps,
             'setup_script_text': setup_script_text

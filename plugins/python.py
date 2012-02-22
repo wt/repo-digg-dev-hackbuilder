@@ -94,7 +94,7 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                 (self.target.target_id.name,
                  packages_string,
                  self.target.target_id.name,
-                 self.target.entry_point,
+                 self.target.console_script,
                  repr(data_files)))
         logging.debug('Setup script contents:\n%s' % setup_py_text)
 
@@ -171,22 +171,22 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
 
         logging.info('Creating wrapper script for %s for package %s',
                 self.target.target_id, package_builder.target.target_id)
-        full_entry_point_wrapper_dir = os.path.join(
+        full_console_script_wrapper_dir = os.path.join(
                 package_builder.full_package_hierarchy_dir, 'usr', 'bin')
-        os.mkdir(full_entry_point_wrapper_dir)
-        full_entry_point_wrapper_path = os.path.join(
-                full_entry_point_wrapper_dir, self.target.target_id.name)
+        os.mkdir(full_console_script_wrapper_dir)
+        full_console_script_wrapper_path = os.path.join(
+                full_console_script_wrapper_dir, self.target.target_id.name)
 
-        entry_point_exec_target = os.path.join('../lib/',
+        console_script_exec_target = os.path.join('../lib/',
                 package_builder.target.target_id.name,
                 '-'.join((self.target.target_id.name, 'virtualenv')), 'bin',
                 self.target.target_id.name)
 
-        with open(full_entry_point_wrapper_path, 'w') as f:
+        with open(full_console_script_wrapper_path, 'w') as f:
             f.write('#!/bin/bash -e\n')
             f.write('DIR="$( cd -P "$( dirname "$0" )" && pwd )"\n')
-            f.write('exec ${DIR}/%s "$@"' % (entry_point_exec_target,))
-        os.chmod(full_entry_point_wrapper_path, 0755)
+            f.write('exec ${DIR}/%s "$@"' % (console_script_exec_target,))
+        os.chmod(full_console_script_wrapper_path, 0755)
 
     def do_build_package_work(self):
         logging.info('Making built virtualenv relocatable for %s',
@@ -213,10 +213,10 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
 class PythonBinaryBuildTarget(digg.dev.hackbuilder.target.BinaryBuildTarget):
     builder_class = PythonBinaryBuilder
 
-    def __init__(self, normalizer, target_id, dep_ids, entry_point=None):
+    def __init__(self, normalizer, target_id, dep_ids, console_script=None):
         digg.dev.hackbuilder.target.BinaryBuildTarget.__init__(self,
                 normalizer, target_id, dep_ids)
-        self.entry_point = entry_point
+        self.console_script = console_script
         self.virtualenv_root = os.path.join(self.target_build_dir,
                 'python_virtualenv')
         self.bin_path = os.path.join(self.virtualenv_root, 'bin',
@@ -383,26 +383,26 @@ class PythonThirdPartyLibraryBuildTarget(
 
 
 def build_file_python_bin(repo_path, normalizer):
-    def python_bin(name, deps=(), entry_point=None):
+    def python_bin(name, deps=(), console_script=None):
         logging.debug('Build file target, Python bin: %s', name)
         target_id = digg.dev.hackbuilder.target.TargetID(repo_path, name)
         dep_target_ids = normal_dep_targets_from_dep_strings(repo_path,
                 normalizer, deps)
         python_bin_target = PythonBinaryBuildTarget(normalizer, target_id,
-                dep_ids=dep_target_ids, entry_point=entry_point)
+                dep_ids=dep_target_ids, console_script=console_script)
         build_file_targets.put(python_bin_target)
 
     return python_bin
 
 
 def build_file_python_test(repo_path, normalizer):
-    def python_test(name, deps=(), entry_point=None):
+    def python_test(name, deps=(), console_script=None):
         logging.debug('Build file target, Python test: %s', name)
         target_id = digg.dev.hackbuilder.target.TargetID(repo_path, name)
         dep_target_ids = normal_dep_targets_from_dep_strings(repo_path,
                 normalizer, deps)
         python_test_target = PythonTestBuildTarget(normalizer, target_id,
-                dep_ids=dep_target_ids, entry_point=entry_point)
+                dep_ids=dep_target_ids, console_script=console_script)
         build_file_targets.put(python_test_target)
 
     return python_test
