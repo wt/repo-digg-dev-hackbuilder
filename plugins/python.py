@@ -14,6 +14,7 @@
 
 from __future__ import with_statement
 
+import cStringIO as stringio
 import errno
 import logging
 import os.path
@@ -66,17 +67,24 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
             packages.add(current_package[1:])
 
         data_files = {}
+        entry_points = {}
         for dep_id in self.target.dep_ids:
             builder = builders[dep_id]
             if isinstance(builder, PythonLibraryBuilder):
                 packages.update(builder.get_transitive_python_packages(
                     builders))
+                entry_points.update(
+                        builder.get_transitive_python_package_entry_points(
+                            builders))
                 data_files.update(builder.get_transitive_python_package_data(
                     builders))
 
         packages_string = ''
         if packages:
             packages_string = "'%s'" % "','".join(packages)
+
+        entry_point_string = self._entry_point_string_from_entry_points(
+                entry_points, indent_spaces=8)
 
         setup_py_text = (
                 'import setuptools\n'
@@ -88,6 +96,7 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                 "        'console_scripts': [\n"
                 "            '%s = %s',\n"
                 '        ],\n'
+                '%s'
                 '    },\n'
                 '    package_data=%s,\n'
                 ')' %
@@ -95,6 +104,7 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                  packages_string,
                  self.target.target_id.name,
                  self.target.console_script,
+                 entry_point_string,
                  repr(data_files)))
         logging.debug('Setup script contents:\n%s' % setup_py_text)
 
@@ -209,6 +219,22 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
             raise digg.dev.hackbuilder.errors.Error(
                     'Making virtualenv relocatable failed.')
 
+    def _entry_point_string_from_entry_points(self, entry_points,
+            indent_spaces=0):
+        indent_string = ' ' * indent_spaces
+        entry_point_string_buffer = stringio.StringIO()
+        for entry_point_section in entry_points:
+            entry_point_string_buffer.write(indent_string)
+            entry_point_string_buffer.write(
+                    "'%s': [\n" % entry_point_section)
+            for entry_point in entry_points[entry_point_section]:
+                entry_point_string_buffer.write(indent_string * 2)
+                entry_point_string_buffer.write(
+                        "    '%s',\n" % entry_point)
+            entry_point_string_buffer.write(indent_string)
+            entry_point_string_buffer.write("],\n")
+        return entry_point_string_buffer.getvalue()
+
 
 class PythonBinaryBuildTarget(digg.dev.hackbuilder.target.BinaryBuildTarget):
     builder_class = PythonBinaryBuilder
@@ -244,6 +270,17 @@ class PythonLibraryBuilder(digg.dev.hackbuilder.plugin_utils.LibraryBuilder):
                     builders))
 
         return packages
+
+    def get_transitive_python_package_entry_points(self, builders):
+        python_package_entry_points = self.target.entry_points
+        for dep_id in self.target.dep_ids:
+            builder = builders[dep_id]
+            if isinstance(builder, PythonLibraryBuilder):
+                python_package_entry_points.update(
+                        builder.get_transitive_python_package_entry_points(
+                            builders))
+
+        return python_package_entry_points
 
     def get_transitive_python_package_data(self, builders):
         target_package_name = self.target.target_id.path[1:].replace(
@@ -307,10 +344,16 @@ class PythonLibraryBuildTarget(digg.dev.hackbuilder.target.LibraryBuildTarget):
     builder_class = PythonLibraryBuilder
 
     def __init__(self, normalizer, target_id, dep_ids, source_files,
-            packages=None, data_files=None):
+            packages=None, entry_points=None, data_files=None):
         digg.dev.hackbuilder.target.BuildTarget.__init__(self, normalizer,
                 target_id, dep_ids=dep_ids)
         self.source_files = source_files
+
+        if entry_points is None:
+            self.entry_points = {}
+        else:
+            self.entry_points = entry_points
+
         if data_files is None:
             self.data_files = []
         else:
@@ -322,6 +365,9 @@ class PythonLibraryBuildTarget(digg.dev.hackbuilder.target.LibraryBuildTarget):
 class PythonThirdPartyLibraryBuilder(PythonLibraryBuilder):
     def get_transitive_python_packages(self, builders):
         return set()
+
+    def get_transitive_python_package_entry_points(self, builders):
+        return {}
 
     def get_transitive_python_package_data(self, builders):
         return {}
@@ -409,14 +455,16 @@ def build_file_python_test(repo_path, normalizer):
 
 
 def build_file_python_lib(repo_path, normalizer):
-    def python_lib(name, deps=(), srcs=None, packages=None, files=None):
+    def python_lib(name, deps=(), srcs=None, packages=None, entry_points=None,
+            files=None):
         logging.debug('Build file target, Python lib: %s', name)
         target_id = digg.dev.hackbuilder.target.TargetID(repo_path, name)
         dep_target_ids = normal_dep_targets_from_dep_strings(repo_path,
                 normalizer, deps)
         python_lib_target = PythonLibraryBuildTarget(normalizer, target_id,
                 dep_ids=dep_target_ids, source_files=srcs,
-                packages=packages, data_files=files)
+                packages=packages, entry_points=entry_points,
+                data_files=files)
         build_file_targets.put(python_lib_target)
 
     return python_lib
