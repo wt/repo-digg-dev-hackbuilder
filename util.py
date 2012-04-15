@@ -17,6 +17,8 @@ import logging
 import os
 import os.path
 
+import digg.dev.hackbuilder.errors
+
 def get_root_of_repo_directory_tree(path='.'):
     """Find the root of the repository.
 
@@ -45,7 +47,7 @@ def get_root_of_repo_directory_tree(path='.'):
                         'The .repo path (%s) is not a directory.' %
                         (repo_path,))
             break
-        if current_path == '/':
+        if os.path.abspath(current_path) == '/':
             raise digg.dev.hackbuilder.errors.Error(
                     'Root of repository not found. Stopped looking at root.')
         current_path = os.path.join(current_path, '..')
