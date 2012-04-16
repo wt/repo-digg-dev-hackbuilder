@@ -1,5 +1,5 @@
 debian_pkg('digg-hackbuilder',
-           version='0.1',
+           version='0.2',
            deps=[':hack'])
 
 python_bin('hack',
