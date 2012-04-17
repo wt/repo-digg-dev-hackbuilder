@@ -33,7 +33,7 @@ class BuildFileReader(object):
     Attributes:
         cached_build_file_targets: This is a cache to prevent build files from
             having to be processed more than once. It's keys are a repository
-            paths, and it's values are the discoverd build file targets for
+            paths, and it's values are the discovered build file targets for
             that path.
     """
     def __init__(self, normalizer):
