@@ -83,7 +83,6 @@ class BuildFileTargetFinder(object):
         self.normalizer = normalizer
         self.build_file_reader = build_file_reader
         self.target_ids = set()
-        self.build_file_path_seen = set()
 
     def seed_from_cli_build_target_ids(self, arg_targets):
         self.seed_target_ids = self._get_normalized_target_ids_from_cli_args(
