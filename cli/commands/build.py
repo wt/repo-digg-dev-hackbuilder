@@ -39,8 +39,7 @@ def do_build(args):
     build.build()
 
 
-def get_argparser(subparsers):
-    parser = subparsers.add_parser('build', help='Build targets.')
+def init_argparser(parser):
     parser.add_argument(
             '--jobs', '-j',
             default=1,
@@ -53,5 +52,3 @@ def get_argparser(subparsers):
             help='Targets to operate on.',
             nargs='*')
     parser.set_defaults(func=do_build)
-
-    return parser

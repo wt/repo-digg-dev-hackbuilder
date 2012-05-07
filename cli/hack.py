@@ -47,10 +47,17 @@ def get_parser():
             help='Name of command to get help for',
             nargs='?')
 
-    parser_build = digg.dev.hackbuilder.cli.commands.build.get_argparser(
-            subparsers)
-    parser_run = digg.dev.hackbuilder.cli.commands.run.get_argparser(
-            subparsers)
+    parser_build = subparsers.add_parser('build', help='Build targets.')
+    digg.dev.hackbuilder.cli.commands.build.init_argparser(parser_build)
+
+    parser_run = subparsers.add_parser('run', help='Run binary targets.',
+            description='This subcommand can be used to run a binary '
+                        'target. In order to pass arguments prefixed '
+                        'with dashes (e.g. -a or --blah), please add '
+                        'a -- argument to prevent further argument '
+                        'parsing. For example: "%(prog)s -- binary '
+                        'arg0 --arg1"')
+    digg.dev.hackbuilder.cli.commands.run.init_argparser(parser_run)
 
     parser_clean = subparsers.add_parser('clean', help='Clean up the mess.')
     parser_clean.set_defaults(func=do_clean)

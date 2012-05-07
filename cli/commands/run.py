@@ -41,14 +41,7 @@ def do_run(args):
     os.execv(target.bin_path, all_args)
 
 
-def get_argparser(subparsers):
-    parser = subparsers.add_parser('run', help='Run binary targets.',
-            description='This subcommand can be used to run a binary '
-                        'target. In order to pass arguments prefixed '
-                        'with dashes (e.g. -a or --blah), please add '
-                        'a -- argument to prevent further argument '
-                        'parsing. For example: "%(prog)s -- binary '
-                        'arg0 --arg1"')
+def init_argparser(parser):
     parser.add_argument(
             'target',
             default='',
@@ -60,5 +53,3 @@ def get_argparser(subparsers):
             help='Command line arguments for the target.',
             nargs='*')
     parser.set_defaults(func=do_run)
-
-    return parser
