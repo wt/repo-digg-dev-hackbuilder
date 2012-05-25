@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import logging
 import os.path
 import re
 import sys
@@ -227,6 +228,44 @@ class Target(object):
                     })
         return transitive_deps
 
+    def __eq__(self, other):
+        return self.target_id == other.target_id
+
+    def __hash__(self):
+        return hash(self.target_id)
+
+    def __repr__(self):
+        return "%s('%s')" % (self.__class__.__name__, self.target_id.id_string)
+
+
+class RunTarget(Target):
+    """Run target.
+
+    This target is a target that runs a binary.
+    """
+
+    def __init__(self, normalizer, target_id):
+        if not target_id.is_normalized():
+            raise digg.dev.hackbuilder.errors.TargetIDNotNormalizedError(
+                    target_id)
+        self.normalizer = normalizer
+        self.target_id = target_id
+        build_file_reader = (
+                    digg.dev.hackbuilder.build.BuildFileReader(normalizer))
+        self.build_target_resolver = (
+                digg.dev.hackbuilder.build.BuildTargetFromBuildFileResolver(
+                    build_file_reader))
+        target = self.build_target_resolver.resolve(target_id)
+        super(RunTarget, self).__init__([target_id])
+
+    def run(self, args):
+        logging.info('Running target: %s', self.target_id)
+        target = self.build_target_resolver.resolve(self.target_id)
+        all_args = [target.bin_path] + args
+        command_string = '"{0}"'.format('" "'.join(all_args))
+        logging.info('Execing command: %s', command_string)
+        os.execv(target.bin_path, all_args)
+
 
 class BuildTarget(Target):
     def __init__(self, normalizer, target_id, dep_ids=None):
@@ -265,15 +304,6 @@ class BuildTarget(Target):
         self.package_root = os.path.join(
                 self.normalizer.repo_root_path,
                 digg.dev.hackbuilder.common.DEFAULT_PACKAGE_DIR)
-
-    def __eq__(self, other):
-        return self.target_id == other.target_id
-
-    def __hash__(self):
-        return hash(self.target_id)
-
-    def __repr__(self):
-        return "%s('%s')" % (self.__class__.__name__, self.target_id.id_string)
 
 
 class PackageBuildTarget(BuildTarget):
