@@ -213,14 +213,29 @@ class TargetID(object):
         return self.is_absolute() and self.has_name()
 
 
-class BuildTarget(object):
+class Target(object):
+    def __init__(self, dep_ids=None):
+        self.dep_ids = dep_ids
+
+    def get_transitive_deps(self, build_target_resolver):
+        transitive_deps = {}
+        for dep_id in self.dep_ids:
+            build_target = build_target_resolver.resolve(dep_id)
+            transitive_deps.update({
+                    build_target: build_target.get_transitive_deps(
+                        build_target_resolver)
+                    })
+        return transitive_deps
+
+
+class BuildTarget(Target):
     def __init__(self, normalizer, target_id, dep_ids=None):
+        super(BuildTarget, self).__init__(dep_ids)
         if not target_id.is_normalized():
             raise digg.dev.hackbuilder.errors.TargetIDNotNormalizedError(
                     target_id)
         self.normalizer = normalizer
         self.target_id = target_id
-        self.dep_ids = dep_ids
 
         self.working_copy_root = self.normalizer.repo_root_path
 
