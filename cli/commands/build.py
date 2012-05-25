@@ -27,25 +27,27 @@ def do_build(args):
     logging.info('Repository root: %s', repo_root)
 
     normalizer = digg.dev.hackbuilder.target.Normalizer(repo_root)
-
     build_file_reader = digg.dev.hackbuilder.build.BuildFileReader(normalizer)
-    build_file_target_finder = (
-            digg.dev.hackbuilder.build.BuildFileTargetFinder(
-                normalizer, build_file_reader))
-    build_file_target_finder.seed_from_cli_build_target_ids(args.targets)
-    build_target_trees = build_file_target_finder.get_target_trees()
 
-    build = digg.dev.hackbuilder.build.Build(build_target_trees, normalizer)
-    build.build()
+    for target_str in args.targets:
+        logging.info("Building target %s", target_str)
+        target_id = digg.dev.hackbuilder.target.TargetID.from_string(
+                target_str)
+        normal_target_id = normalizer.normalize_target_id(target_id)
+        logging.info("Normalized target id: %s", normal_target_id)
+        build_target_resolver = (
+                digg.dev.hackbuilder.build.BuildTargetFromBuildFileResolver(
+                    build_file_reader))
+        build_target = build_target_resolver.resolve(normal_target_id)
+        build_target_trees = {
+            build_target: build_target.get_transitive_deps(
+                build_target_resolver)
+            }
+        build = digg.dev.hackbuilder.build.Build(build_target_trees, normalizer)
+        build.build()
 
 
 def init_argparser(parser):
-    parser.add_argument(
-            '--jobs', '-j',
-            default=1,
-            type=int,
-            help='Number of parallel actions. (default=1) '
-                 '(parallel actions not yet implemented',)
     parser.add_argument(
             'targets',
             default=[''],

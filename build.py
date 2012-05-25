@@ -78,55 +78,26 @@ class BuildFileReader(object):
 
         return build_file_targets
 
-class BuildFileTargetFinder(object):
-    def __init__(self, normalizer, build_file_reader):
-        self.normalizer = normalizer
+
+class BuildTargetFromBuildFileResolver(object):
+    def __init__(self, build_file_reader):
         self.build_file_reader = build_file_reader
-        self.target_ids = set()
 
-    def seed_from_cli_build_target_ids(self, arg_targets):
-        self.seed_target_ids = self._get_normalized_target_ids_from_cli_args(
-                arg_targets)
-
-    def get_target_trees(self, target_ids_to_discover=None):
-        if target_ids_to_discover is None:
-            target_ids_to_discover = self.seed_target_ids.copy()
-
-        dep_trees = {}
-        for target_id in target_ids_to_discover:
-            build_target = self.get_build_target(target_id)
-            dep_targets = self.get_target_trees(
-                    target_ids_to_discover=build_target.dep_ids)
-            dep_trees[build_target] = dep_targets
-        return dep_trees
-
-    def get_build_target(self, target_id):
-        get_build_file_targets_for_repo_path = (
-                self.build_file_reader.get_build_file_targets_for_repo_path)
-        build_file_path = target_id.path
+    def resolve(self, target_id):
+        build_file_targets = (
+                self.build_file_reader.get_build_file_targets_for_repo_path(
+                    target_id.path))
 
         possible_build_file_targets = set()
-        possible_build_file_targets.update(
-                get_build_file_targets_for_repo_path(
-                    build_file_path))
+        possible_build_file_targets.update(build_file_targets)
 
-        build_file_targets_to_discover = set()
-        for build_file_target in possible_build_file_targets:
+        for build_file_target in build_file_targets:
             if build_file_target.target_id == target_id:
                 return build_file_target
 
         raise digg.dev.hackbuilder.errors.Error(
-                'No build target found for target id(%s)'
-                % target_id)
-
-    def _get_normalized_target_ids_from_cli_args(self, arg_targets):
-        normalized_targets = set()
-        for target in arg_targets:
-            target_id = digg.dev.hackbuilder.target.TargetID.from_string(
-                    target)
-            normalized_targets.add(
-                    self.normalizer.normalize_target_id(target_id))
-        return normalized_targets
+                'No build target found for target id(%s)' %
+                target_id)
 
 
 class Build(object):
