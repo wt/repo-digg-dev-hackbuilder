@@ -29,12 +29,12 @@ def do_run(args):
     normalizer = digg.dev.hackbuilder.target.Normalizer(repo_root)
 
     build_file_reader = digg.dev.hackbuilder.build.BuildFileReader(normalizer)
-    build_file_target_finder = (
-            digg.dev.hackbuilder.build.BuildFileTargetFinder(
-                normalizer, build_file_reader))
+    build_target_resolver = (
+            digg.dev.hackbuilder.build.BuildTargetFromBuildFileResolver(
+                build_file_reader))
     target_id = digg.dev.hackbuilder.target.TargetID.from_string(args.target)
     target_id = normalizer.normalize_target_id(target_id)
-    target = build_file_target_finder.get_build_target(target_id)
+    target = build_target_resolver.resolve(target_id)
     all_args = [target.bin_path] + args.args
     command_string = '" "'.join(all_args)
     logging.info('Execing command: %s', command_string)
