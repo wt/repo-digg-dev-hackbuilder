@@ -26,7 +26,7 @@ from digg.dev.hackbuilder.plugin_utils import BinaryBuilder
 
 class DebianPackageBuilder(digg.dev.hackbuilder.plugin_utils.PackageBuilder):
     def __init__(self, target):
-        digg.dev.hackbuilder.plugin_utils.Builder.__init__(self, target)
+        digg.dev.hackbuilder.plugin_utils.PackageBuilder.__init__(self, target)
 
         self.full_package_hierarchy_dir = os.path.join(
                 self.target.target_build_dir, 'dpkg_hierarchy')
