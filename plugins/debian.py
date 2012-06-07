@@ -21,7 +21,7 @@ import digg.dev.hackbuilder.plugin_utils
 from digg.dev.hackbuilder.plugins import build_file_targets
 from digg.dev.hackbuilder.plugin_utils \
         import normal_dep_targets_from_dep_strings
-from digg.dev.hackbuilder.plugin_utils import BinaryBuilder
+from digg.dev.hackbuilder.plugin_utils import BinaryLauncherBuilder
 
 
 class DebianPackageBuilder(digg.dev.hackbuilder.plugin_utils.PackageBuilder):
@@ -35,10 +35,16 @@ class DebianPackageBuilder(digg.dev.hackbuilder.plugin_utils.PackageBuilder):
         logging.info('Copying built binaries to package hierarchy for %s',
                 self.target.target_id)
 
+        package_data = {
+                'bin_path': '/usr/bin',
+                'sbin_path': '/usr/sbin',
+                }
+
         for dep_id in self.target.dep_ids:
             builder = builders[dep_id]
-            if isinstance(builder, BinaryBuilder):
-                builder.do_pre_build_package_binary_install(builders, self)
+            if isinstance(builder, BinaryLauncherBuilder):
+                builder.do_pre_build_package_binary_install(builders, self,
+                        **package_data)
 
 
     def do_build_package_work(self):

@@ -18,6 +18,7 @@ import digg.dev.hackbuilder.errors
 
 
 plugin_names = [
+        'generic',
         'python',
         'debian',
         ]

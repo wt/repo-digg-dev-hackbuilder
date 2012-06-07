@@ -49,11 +49,19 @@ class Builder(object):
         pass
 
 
+class BinaryLauncherBuilder(Builder):
+    pass
+
+
+class StartScriptBuilder(BinaryLauncherBuilder):
+    pass
+
+
 class PackageBuilder(Builder):
     pass
 
 
-class BinaryBuilder(Builder):
+class BinaryBuilder(BinaryLauncherBuilder):
     pass
 
 

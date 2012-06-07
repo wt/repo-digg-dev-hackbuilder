@@ -306,11 +306,19 @@ class BuildTarget(Target):
                 digg.dev.hackbuilder.common.DEFAULT_PACKAGE_DIR)
 
 
+class BinaryLauncherBuildTarget(BuildTarget):
+    pass
+
+
+class StartScriptBuildTarget(BinaryLauncherBuildTarget):
+    pass
+
+
 class PackageBuildTarget(BuildTarget):
     pass
 
 
-class BinaryBuildTarget(BuildTarget):
+class BinaryBuildTarget(BinaryLauncherBuildTarget):
     pass
 
 

@@ -166,7 +166,8 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
             raise digg.dev.hackbuilder.errors.Error(
                     'Install failed.')
 
-    def do_pre_build_package_binary_install(self, builders, package_builder):
+    def do_pre_build_package_binary_install(self, builders, package_builder,
+            bin_path, **kwargs):
         logging.info('Copying binary for %s to package %s',
                 self.target.target_id, package_builder.target.target_id)
 
@@ -179,8 +180,8 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
 
         logging.info('Creating wrapper script for %s for package %s',
                 self.target.target_id, package_builder.target.target_id)
-        full_console_script_wrapper_dir = os.path.join(
-                package_builder.full_package_hierarchy_dir, 'usr', 'bin')
+        full_console_script_wrapper_dir = (
+                package_builder.full_package_hierarchy_dir) + bin_path
         os.mkdir(full_console_script_wrapper_dir)
         full_console_script_wrapper_path = os.path.join(
                 full_console_script_wrapper_dir, self.target.target_id.name)
