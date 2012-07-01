@@ -140,7 +140,7 @@ class DebianPackageBuildTarget(
 
         self.dpkg_deps = set([
                 'libc6 (>= 2.7-1)',
-                'python2.6'
+                'python'
                 ])
         if extra_dpkg_deps is not None:
             self.dpkg_deps.update(extra_dpkg_deps)
