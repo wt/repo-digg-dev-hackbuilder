@@ -315,7 +315,14 @@ class StartScriptBuildTarget(BinaryLauncherBuildTarget):
 
 
 class PackageBuildTarget(BuildTarget):
-    pass
+    def __init__(self, normalizer, target_id, dep_ids=None, version=None):
+        super(PackageBuildTarget, self).__init__(normalizer, target_id,
+                dep_ids)
+
+        if version is None:
+            self.version = '0.0.0.0.1'
+        else:
+            self.version = version
 
 
 class BinaryBuildTarget(BinaryLauncherBuildTarget):

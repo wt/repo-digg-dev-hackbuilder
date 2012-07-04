@@ -51,6 +51,7 @@ build_targets = {}
 build_globals = {}
 build_locals = {
         'debian_pkg': lambda *args, **kwargs: None,
+        'mac_pkg': lambda *args, **kwargs: None,
         'python_bin': build_target_python_bin,
         'python_test': build_target_python_bin,
         'python_lib': lambda *args, **kwargs: None,

@@ -18,9 +18,10 @@ import digg.dev.hackbuilder.errors
 
 
 plugin_names = [
-        'generic',
-        'python',
         'debian',
+        'generic',
+        'macosx',
+        'python',
         ]
 
 def _get_all_build_file_rules_generators(plugins):

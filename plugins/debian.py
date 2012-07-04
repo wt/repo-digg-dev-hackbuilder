@@ -82,7 +82,7 @@ class DebianPackageBuilder(digg.dev.hackbuilder.plugin_utils.PackageBuilder):
                 'Description: %s\n'
                 '%s\n' %
                 (self.target.target_id.name,
-                 self.target.dpkg_version,
+                 self.target.version,
                  deb_arch,
                  ', '.join(self.target.dpkg_deps),
                  'stuff',
@@ -129,15 +129,10 @@ class DebianPackageBuildTarget(
         digg.dev.hackbuilder.target.PackageBuildTarget):
     builder_class = DebianPackageBuilder
 
-    def __init__(self, normalizer, target_id, dep_ids=None, dpkg_version=None,
+    def __init__(self, normalizer, target_id, dep_ids=None, version=None,
             extra_dpkg_deps=None):
         digg.dev.hackbuilder.target.PackageBuildTarget.__init__(self,
-                normalizer, target_id, dep_ids)
-
-        if dpkg_version is None:
-            self.dpkg_version = '0.0.0.0.1'
-        else:
-            self.dpkg_version = dpkg_version
+                normalizer, target_id, dep_ids=dep_ids, version=version)
 
         self.dpkg_deps = set([
                 'libc6 (>= 2.7-1)',
@@ -154,7 +149,7 @@ def build_file_debian_pkg(repo_path, normalizer):
         dep_target_ids = normal_dep_targets_from_dep_strings(repo_path,
                 normalizer, deps)
         debian_pkg_target = DebianPackageBuildTarget(normalizer, target_id,
-                dep_ids=dep_target_ids, dpkg_version=version,
+                dep_ids=dep_target_ids, version=version,
                 extra_dpkg_deps=extra_dpkg_deps)
         build_file_targets.put(debian_pkg_target)
 

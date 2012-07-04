@@ -1,6 +1,13 @@
+version='0.3'
+
 debian_pkg('digg-hackbuilder',
-           version='0.3',
+           version=version,
            deps=[':hack'])
+
+mac_pkg('digg-hackbuilder-macosx',
+        pkg_filebase='Hack Builder',
+        version=version,
+        deps=[':hack'])
 
 python_bin('hack',
            console_script='digg.dev.hackbuilder.cli.hack:main',
@@ -24,6 +31,7 @@ python_lib('hackbuilder_lib',
                'plugins/__init__.py',
                'plugins/generic.py',
                'plugins/debian.py',
+               'plugins/macosx.py',
                'plugins/python.py',
                'target.py',
                'test_target.py',
