@@ -38,6 +38,7 @@ class DebianPackageBuilder(digg.dev.hackbuilder.plugin_utils.PackageBuilder):
         package_data = {
                 'bin_path': '/usr/bin',
                 'sbin_path': '/usr/sbin',
+                'lib_path': '/usr/lib',
                 }
 
         for dep_id in self.target.dep_ids:

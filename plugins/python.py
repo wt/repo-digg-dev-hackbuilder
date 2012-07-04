@@ -167,13 +167,13 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                     'Install failed.')
 
     def do_pre_build_package_binary_install(self, builders, package_builder,
-            bin_path, **kwargs):
+            bin_path, lib_path, **kwargs):
         logging.info('Copying binary for %s to package %s',
                 self.target.target_id, package_builder.target.target_id)
 
         full_virtualenv_dest_path = os.path.join(
-                package_builder.full_package_hierarchy_dir, 'usr', 'lib',
-                package_builder.target.target_id.name, 
+                package_builder.full_package_hierarchy_dir + lib_path,
+                package_builder.target.target_id.name,
                 '-'.join((self.target.target_id.name, 'virtualenv')))
         shutil.copytree(self.target.virtualenv_root, full_virtualenv_dest_path,
                 True)
@@ -186,13 +186,16 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
         full_console_script_wrapper_path = os.path.join(
                 full_console_script_wrapper_dir, self.target.target_id.name)
 
-        console_script_exec_target = os.path.join('../lib/',
-                package_builder.target.target_id.name,
-                '-'.join((self.target.target_id.name, 'virtualenv')), 'bin',
+        console_script_exec_target = os.path.join(
+                os.path.relpath(full_virtualenv_dest_path,
+                    full_console_script_wrapper_dir), 'bin',
                 self.target.target_id.name)
 
         with open(full_console_script_wrapper_path, 'w') as f:
-            f.write('#!/bin/bash -e\n')
+            f.write('#!/usr/bin/env bash\n')
+            f.write('\n')
+            f.write('set -e\n')
+            f.write('\n')
             f.write('DIR="$( cd -P "$( dirname "$0" )" && pwd )"\n')
             f.write('exec ${DIR}/%s "$@"' % (console_script_exec_target,))
         os.chmod(full_console_script_wrapper_path, 0755)
