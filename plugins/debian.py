@@ -47,7 +47,6 @@ class DebianPackageBuilder(digg.dev.hackbuilder.plugin_utils.PackageBuilder):
                 builder.do_pre_build_package_binary_install(builders, self,
                         **package_data)
 
-
     def do_build_package_work(self):
         self._create_debian_control_file()
         self._create_debian_binary_package()
@@ -112,11 +111,12 @@ class DebianPackageBuilder(digg.dev.hackbuilder.plugin_utils.PackageBuilder):
         retcode = dpkg_deb_proc.returncode
         if retcode != 0:
             logging.info('Debian binary package creation failed.')
-            logging.info('Making virtualenv relocatable failed with exit code = %s',
-                    retcode)
-            logging.info('Making virtualenv relocatable stdout:\n%s',
+            logging.info(
+                    'Debian binary package creation failed with exit code = '
+                    '%s', retcode)
+            logging.info('Debian binary package creation stdout:\n%s',
                     stdoutdata)
-            logging.info('Making virtualenv relocatable stderr:\n%s',
+            logging.info('Debian binary package creation stderr:\n%s',
                     stderrdata)
             raise digg.dev.hackbuilder.errors.Error(
                     'dpkg-deb call failed with exitcode %s', retcode)
