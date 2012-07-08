@@ -72,8 +72,13 @@ def mirror_filesystem_hierarchy(from_path, to_path):
     """
     logging.debug('Mirroring filesystem hierarchy from (%s) to (%s).',
             from_path, to_path)
-    os.makedirs(to_path)
-    logging.debug('Made directory: %s', to_path)
+    try:
+        os.makedirs(to_path)
+        logging.debug('Made directory: %s', to_path)
+    except OSError, e:
+        if e.errno != errno.EEXIST:
+            raise
+        logging.debug('Directory already existed: %s', to_path)
     for path, subdirs, filenames in os.walk(from_path):
         # make directories
         logging.debug('Path: %s', path)
