@@ -72,6 +72,8 @@ def mirror_filesystem_hierarchy(from_path, to_path):
     """
     logging.debug('Mirroring filesystem hierarchy from (%s) to (%s).',
             from_path, to_path)
+    os.makedirs(to_path)
+    logging.debug('Made directory: %s', to_path)
     for path, subdirs, filenames in os.walk(from_path):
         # make directories
         logging.debug('Path: %s', path)
@@ -79,7 +81,7 @@ def mirror_filesystem_hierarchy(from_path, to_path):
             rel_dir = os.path.relpath(os.path.join(path, subdir), from_path)
             full_to_path = os.path.join(to_path, rel_dir)
             try:
-                os.makedirs(full_to_path)
+                os.mkdir(full_to_path)
                 logging.debug('Made directory: %s', full_to_path)
             except OSError, e:
                 if e.errno != errno.EEXIST:
