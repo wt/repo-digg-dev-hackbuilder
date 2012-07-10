@@ -1,4 +1,4 @@
-version='0.3'
+version='0.4'
 
 debian_pkg('digg-hackbuilder',
            version=version,
