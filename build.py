@@ -23,6 +23,7 @@ import Queue
 import digg.dev.hackbuilder.common
 import digg.dev.hackbuilder.errors
 import digg.dev.hackbuilder.plugins
+import digg.dev.hackbuilder.util
 from digg.dev.hackbuilder.plugin_utils import BinaryBuilder
 from digg.dev.hackbuilder.plugin_utils import PackageBuilder
 
@@ -146,11 +147,7 @@ class Build(object):
     def _mkdir_in_repo_dir(self, path):
         full_path = os.path.join(self.normalizer.repo_root_path, path)
         logging.debug('Creating absolute directory: %s', full_path)
-        try:
-            os.mkdir(full_path)
-        except OSError, e:
-            if e.errno != errno.EEXIST:
-                raise
+        digg.dev.hackbuilder.util.mkdir_if_not_exists(full_path)
 
     def remove_directories(self):
         logging.info('Removing infrastructure directories')

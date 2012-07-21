@@ -182,7 +182,8 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                 self.target.target_id, package_builder.target.target_id)
         full_console_script_wrapper_dir = (
                 package_builder.full_package_hierarchy_dir) + bin_path
-        os.mkdir(full_console_script_wrapper_dir)
+        digg.dev.hackbuilder.util.mkdir_if_not_exists(
+                full_console_script_wrapper_dir)
         full_console_script_wrapper_path = os.path.join(
                 full_console_script_wrapper_dir, self.target.target_id.name)
 

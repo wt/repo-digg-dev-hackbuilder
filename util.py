@@ -55,6 +55,44 @@ def get_root_of_repo_directory_tree(path='.'):
     return os.path.abspath(current_path)
 
 
+def mkdir_if_not_exists(name, mode=0777):
+    """Make a directory if it doesn't already exist.
+
+    This function is just like os.mkdir except that it will not fail if the
+    directory already exists. If the directory does already exist, nothing is
+    done.
+
+    Args:
+        name: The name of the directory
+        mode: The mode of the created directory
+    """
+    if os.path.isdir(name):
+        logging.debug('Directory already existed: %s', name)
+        return
+
+    os.mkdir(name, mode)
+    logging.debug('Made directory: %s', name)
+
+
+def makedirs_if_not_exists(name, mode=0777):
+    """Recursively make a directory if it doesn't already exist.
+
+    This function is just like os.makedirs except that it will not fail if the
+    directory already exists. If the directory does already exist, nothing is
+    done.
+
+    Args:
+        name: The name of the directory
+        mode: The mode of the created directory
+    """
+    if os.path.isdir(name):
+        logging.debug('Directory already existed: %s', name)
+        return
+
+    os.makedirs(name, mode)
+    logging.debug('Recursively made directory: %s', name)
+
+
 def mirror_filesystem_hierarchy(from_path, to_path):
     """Create symlinked file hierarchy.
 
@@ -72,26 +110,14 @@ def mirror_filesystem_hierarchy(from_path, to_path):
     """
     logging.debug('Mirroring filesystem hierarchy from (%s) to (%s).',
             from_path, to_path)
-    try:
-        os.makedirs(to_path)
-        logging.debug('Made directory: %s', to_path)
-    except OSError, e:
-        if e.errno != errno.EEXIST:
-            raise
-        logging.debug('Directory already existed: %s', to_path)
+    makedirs_if_not_exists(to_path)
     for path, subdirs, filenames in os.walk(from_path):
         # make directories
         logging.debug('Path: %s', path)
         for subdir in subdirs:
             rel_dir = os.path.relpath(os.path.join(path, subdir), from_path)
             full_to_path = os.path.join(to_path, rel_dir)
-            try:
-                os.mkdir(full_to_path)
-                logging.debug('Made directory: %s', full_to_path)
-            except OSError, e:
-                if e.errno != errno.EEXIST:
-                    raise
-                logging.debug('Directory already existed: %s', full_to_path)
+            mkdir_if_not_exists(full_to_path)
 
         # make symlinks
         logging.debug('Files: %s', filenames)
