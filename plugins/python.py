@@ -119,7 +119,7 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
                 self.virtualenv_tool_path)
 
         virtualenv_proc = subprocess.Popen(
-                    (DEFAULT_PYTHON, self.virtualenv_tool_path,
+                    (DEFAULT_PYTHON, '-B', self.virtualenv_tool_path,
                      '--no-site-packages', '--never-download', '--distribute',
                      self.target.virtualenv_root
                      ),
@@ -151,7 +151,7 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
         python_bin_path = os.path.join(self.target.virtualenv_root,
                 'bin', 'python')
         installer_proc = subprocess.Popen(
-                (python_bin_path, self.target.setup_py_path,
+                (python_bin_path, '-B', self.target.setup_py_path,
                     ARGS.python_install_method),
                 cwd=self.target.source_root,
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
@@ -205,7 +205,7 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
         logging.info('Making built virtualenv relocatable for %s',
                 self.target.target_id)
         virtualenv_proc = subprocess.Popen(
-                    (DEFAULT_PYTHON, self.virtualenv_tool_path,
+                    (DEFAULT_PYTHON, '-B', self.virtualenv_tool_path,
                      '--relocatable', self.target.virtualenv_root
                      ),
                     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
@@ -389,7 +389,7 @@ class PythonThirdPartyLibraryBuilder(PythonLibraryBuilder):
         full_target_path = os.path.join(self.target.target_source_dir,
                 self.target.setup_py_dir)
         installer_proc = subprocess.Popen(
-                (python_bin_path, 'setup.py', 'install'),
+                (python_bin_path, '-B', 'setup.py', 'install'),
                 cwd=full_target_path,
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)

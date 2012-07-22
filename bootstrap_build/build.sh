@@ -37,7 +37,7 @@ function gen_binary () {
 
     echo 'Beginning package build'
     #make virtualenv relocatable
-    ${python} ${virtualenv} --relocatable ${build_virtualenv_dir}
+    ${python} -B ${virtualenv} --relocatable ${build_virtualenv_dir}
 
     mkdir ${debian_packages_dir}
     mkdir ${package_root}
@@ -77,7 +77,7 @@ function do_build () {
     cp -a ${repo_top_dir}/${repo_prefix_dir} \
             ${source_dir}/${repo_prefix_dir}/..
     # create setup.py
-    ./bootstrap_build/gen_setup_py.py > ${source_dir}/setup.py
+    ${python} -B bootstrap_build/gen_setup_py.py > ${source_dir}/setup.py
 
     # touch all __init__.py files
     touch ${source_dir}/digg/__init__.py
@@ -91,16 +91,16 @@ function do_build () {
     mkdir -p ${source_dir}/third_party/py/virtualenv
     cp -a ${repo_top_dir}/${virtualenv_prefix_dir} \
             ${source_dir}/third_party/py/virtualenv/
-    ${python} ${virtualenv} --no-site-packages --never-download --distribute \
+    ${python} -B ${virtualenv} --no-site-packages --never-download --distribute \
             ${build_virtualenv_dir}
 
     #Install deps
     echo 'Beginning binary build'
     pushd ${source_dir}/third_party/py/argparse/argparse-1.2.1/
-    ${build_virtualenv_dir}/bin/python setup.py install
+    ${build_virtualenv_dir}/bin/python -B setup.py install
     popd
     pushd ${source_dir}
-    ${build_virtualenv_dir}/bin/python setup.py install
+    ${build_virtualenv_dir}/bin/python -B setup.py install
     popd
 
     set +x 
