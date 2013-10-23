@@ -56,16 +56,13 @@ class MacPackageBuilder(digg.dev.hackbuilder.plugin_utils.PackageBuilder):
         package_file_path = os.path.join(self.target.package_root,
                                          self.target.pkg_filename)
         proc = subprocess.Popen(
-                    ('packagemaker',
+                    ('pkgbuild',
                      '--root', self.full_package_hierarchy_dir,
-                     '--id', 'zyzzx.' + self.target.target_id.name,
-                     '--domain', 'system',
-                     '--domain', 'user',
-                     '--domain', 'anywhere',
-                     '--target', '10.5',
-                     '--filter', '\.DS_Store',
+                     '--identifier', 'zyzzx.' + self.target.target_id.name,
                      '--version', self.target.version,
-                     '--out', package_file_path,
+                     '--install-location', '/',
+                     '--filter', '\.DS_Store',
+                     package_file_path,
                      ),
                     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
