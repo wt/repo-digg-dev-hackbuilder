@@ -118,6 +118,8 @@ class PythonBinaryBuilder(digg.dev.hackbuilder.plugin_utils.BinaryBuilder):
         logging.debug('Absolute path for virtualenv tool: %s',
                 self.virtualenv_tool_path)
 
+        local_env=dict(os.environ)
+        local_env['PYTHONPATH'] = self.target.virtualenv_root
         virtualenv_proc = subprocess.Popen(
                     (DEFAULT_PYTHON, '-B', self.virtualenv_tool_path,
                      '--no-site-packages', '--never-download', '--distribute',
